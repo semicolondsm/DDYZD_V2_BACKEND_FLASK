@@ -1,5 +1,4 @@
 import pytest
-import os
 import json
 from app import db
 from app.models import Room, Chat, Club, ClubHead, User, Application
@@ -8,6 +7,7 @@ def test_ping(flask_client):
     resp = flask_client.get("ping")
     assert resp.status_code ==  200
     assert resp.json.get('msg') == 'ping successfully'
+
 
 def test_chat_list(flask_client, headers):
     db.session.add(User(name='김수완', gcn='1103'))
@@ -29,4 +29,6 @@ def test_chat_list(flask_client, headers):
     assert data[0].get('clubid') == 1
     assert data[0].get('clubname') == '세미콜론'
 
-def 
+
+def test_make_room():
+    pass
