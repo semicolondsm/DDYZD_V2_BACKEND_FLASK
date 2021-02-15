@@ -24,8 +24,8 @@ def create_app(config):
     db.init_app(app)
     jwt.init_app(app)
     
-    from app.api_v1_0 import api_v1_0 as v1_0
-    app.register_blueprint(v1_0) 
+    from app.api_v1_0 import api_v1_0
+    app.register_blueprint(api_v1_0) 
 
     websocket.init_app(app)
     return app

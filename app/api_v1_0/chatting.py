@@ -8,7 +8,6 @@ from app import logger
 import json
 
 # 채팅들 리스트 반환
-@api.route('/chat/list')
 @jwt_required
 def chat_list():
     user = User.query.get_or_404(get_jwt_identity())
@@ -18,10 +17,10 @@ def chat_list():
 
     return json.dumps(rooms, ensure_ascii=False).encode('utf8')
 
+
 # 채팅방 입장
-@api.route('/chat/{club_id}/room', methods=['POST'])
 @jwt_required
-def make_room(club_id):
+def enter_room(club_id):
     club_head_id = ClubHead.query.filter_by(club_id=club_id).first().id
     room = Room.query.filter_by(user=get_jwt_identity(), club_head_id=club_head_id).first()
     if room is None:
@@ -31,11 +30,11 @@ def make_room(club_id):
     return {"room_id": room.id}, 200
     
 
-@api.route('/club/{room_id}/chat', methods=['POST'])
+@api.route('/club/<int:room_id>/chat', methods=['POST'])
 def post_chat(room_id):
     pass 
 
-@api.route('/chat/{room_id}/breakdown', methods=['GET'])
+@api.route('/chat/<int:room_id>/breakdown', methods=['GET'])
 def breakdown(room_id):
     pass
 
