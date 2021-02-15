@@ -1,0 +1,95 @@
+from app import db
+import enum
+
+class ChatEnum(enum.Enum):
+    U = 1
+    C = 2
+    H = 3
+
+class Room(db.Model):
+    __tablename__ = 'room'
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    club_head_id = db.Column(db.Integer, db.ForeignKey('club_head.id'))
+
+    chats = db.relationship('Chat', backref='room', lazy='dynamic')
+
+    def json(self):
+        subquery = ClubHead.query.filter_by(id=self.club_head_id).subquery()
+        club = Club.query.join(subquery, subquery.c.club_id==Club.club_id).first()
+        chat = self.chats.order_by(Chat.created_at.desc()).first()
+        chat_created_at = chat.created_at.strftime("%Y/%m/%dT%H:%M:%S")+'+09:00' if chat is not None else None
+        chat_msg = chat.msg if chat is not None else None
+        return {
+            'roomid': self.id,
+            'clubid': club.club_id,
+            'clubname': club.club_name,
+            'clubimage': club.profile_image,
+            'lastdate': chat_created_at,
+            'lastmessage': chat_msg
+            }
+
+    def __repr__(self):
+        return '<Room> {}'.format(self.id)
+
+class Chat(db.Model):
+    __tablename__ = 'chat'
+    id = db.Column(db.Integer, primary_key=True)
+    room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
+    msg = db.Column(db.String(512))
+    created_at = db.Column(db.DateTime())
+    user_type = db.Column(db.Enum(ChatEnum))
+
+    def __repr__(self):
+        return '<Chat> {}'.format(self.msg)
+    
+class Club(db.Model):
+    __tablename__ = 'club'
+    club_id = db.Column(db.Integer, primary_key=True)
+    club_name = db.Column(db.String(45))
+    total_budget = db.Column(db.Integer)
+    current_budget = db.Column(db.Integer)
+    start_at = db.Column(db.DateTime())
+    close_at = db.Column(db.DateTime())
+    banner_image = db.Column(db.String(255))
+    profile_image = db.Column(db.String(255))
+    hongbo_image = db.Column(db.String(255))
+
+    club_head = db.relationship('ClubHead', backref='club')
+
+    def __repr__(self):
+        return '<Club> {}>'.format(self.club_name)
+
+class ClubHead(db.Model):
+    __tablename__ = 'club_head'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    club_id = db.Column(db.Integer, db.ForeignKey('club.club_id', ondelete='CASCADE'))
+
+    rooms = db.relationship('Room', backref='club_head')
+
+    def __repr__(self):
+        return '<ClubHead> {},{}'.format(self.club_head_user.name, self.club.club_name)
+
+class User(db.Model):
+    __tablename__ = 'user'
+    user_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(15))
+    gcn = db.Column(db.String(5))
+    image_path = db.Column(db.String(45))
+    github_url = db.Column(db.String(45))
+    email = db.Column(db.String(50))
+    device_token = db.Column(db.String(4096))
+
+    club_heads = db.relationship('ClubHead', backref='club_head_user')
+    rooms = db.relationship('Room', backref='room_user')
+
+    def __repr__(self):
+        return '<User> {},{}'.format(self.name, self.gcn)
+
+class Application(db.Model):
+    __tablename__ = 'application'
+    application_id = db.Column(db.Integer, primary_key=True)
+    club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    result = db.Column(db.Boolean())
