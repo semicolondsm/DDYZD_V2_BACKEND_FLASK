@@ -8,7 +8,7 @@ from app import logger
 import json
 
 # 채팅들 리스트 반환
-@jwt_required
+@jwt_required()
 def chat_list():
     user = User.query.get_or_404(get_jwt_identity())
     rooms = []
@@ -19,7 +19,7 @@ def chat_list():
 
 
 # 채팅방 입장
-@jwt_required
+@jwt_required()
 def enter_room(club_id):
     club_head_id = ClubHead.query.filter_by(club_id=club_id).first().id
     room = Room.query.filter_by(user=get_jwt_identity(), club_head_id=club_head_id).first()
