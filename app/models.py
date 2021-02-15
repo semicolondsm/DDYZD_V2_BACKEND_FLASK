@@ -1,10 +1,11 @@
-from app import db
 import enum
+import datetime
+from app import db
 
 class ChatEnum(enum.Enum):
-    U = 1
-    C = 2
-    H = 3
+    U = 1  # 유저
+    C = 2  # 봇
+    H = 3  # 방장
 
 class Room(db.Model):
     __tablename__ = 'room'
@@ -37,7 +38,7 @@ class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
     msg = db.Column(db.String(512))
-    created_at = db.Column(db.DateTime())
+    created_at = db.Column(db.DateTime(),  default=datetime.datetime.now)
     user_type = db.Column(db.Enum(ChatEnum))
 
     def __repr__(self):
