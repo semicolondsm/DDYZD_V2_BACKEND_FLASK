@@ -19,7 +19,7 @@ class Room(db.Model):
         subquery = ClubHead.query.filter_by(id=self.club_head_id).subquery()
         club = Club.query.join(subquery, subquery.c.club_id==Club.club_id).first()
         chat = self.chats.order_by(Chat.created_at.desc()).first()
-        chat_created_at = chat.created_at.isoformat()[:-3]+'+09:00' if chat is not None else None
+        chat_created_at = chat.created_at.isoformat()+'.000+09:00' if chat is not None else None
         chat_msg = chat.msg if chat is not None else None
         return {
             'roomid': self.id,
