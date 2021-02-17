@@ -9,6 +9,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET')
     JWT_IDENTITY_CLAIM = 'sub'
     JWT_SECRET_KEY = os.getenv('SECRET')
+    ROOM_SECRET_KEY = os.getenv('ROOM_SECRET') 
     JWT_DECODE_ALGORITHMS = 'HS256'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = False
 

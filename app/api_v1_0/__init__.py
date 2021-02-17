@@ -10,4 +10,5 @@ def ping():
     return {"msg": "ping successfully"}, 200
 
 api_v1_0.add_url_rule('/chat/list', 'chat_list', chat_list, methods=['GET'])
-api_v1_0.add_url_rule('/chat/<int:club_id>/room', 'enter_room', enter_room, methods=['POST'])
+api_v1_0.add_url_rule('/chat/<int:club_id>/token', 'room_token', room_token, methods=['POST'])
+# api_v1_0.add_url_rule('/chat/<int:room_id>/chat', '', enter_room, methods=['POST'])
