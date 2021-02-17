@@ -44,3 +44,9 @@ def test_room_token(flask_websocket, headers, db_setting):
     assert resp.status_code == 200
     assert payload['room_id'] == 1
     assert payload['sub'] == 1
+
+
+def test_join_room(flask_websocket, db_setting):
+    flask_websocket.emit('join_room', {'abc': 'def'}, namespace='/chat')
+    recv = flask_websocket.get_received(namespace='/chat')[0]
+    assert recv['args'][0]['msg'] == 'join room'

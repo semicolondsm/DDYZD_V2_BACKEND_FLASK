@@ -1,9 +1,8 @@
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import User, Room, ClubHead, Club
-from app import websocket
 from flask_socketio import join_room
-from flask_socketio import emit
 from app import logger
+from app import websocket
 from config import Config
 import json
 import jwt
@@ -29,20 +28,21 @@ def room_token(club_id):
     token = jwt.encode({"room_id": room.id, 'sub': get_jwt_identity()}, Config.ROOM_SECRET_KEY, algorithm="HS256")
 
     return {'room-token': token}, 200
-    
 
-@api.route('/club/<int:room_id>/chat', methods=['POST'])
-def post_chat(room_id):
-    pass 
 
-@api.route('/chat/<int:room_id>/breakdown', methods=['GET'])
-def breakdown(room_id):
-    pass
-
-@websocket.on('connect', namespace='/chat')
 def connect():
-    logger.info('Socket Connection')
+    logger.info('Socket Connect Successfully')
+    websocket.emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
 
-@websocket.on('request', namespace='/chat')
-def response(data):
-    print('response: ', data)
+
+def join_room(json):
+    logger.info('<Join Room> Data:'+str(json))
+    websocket.emit('response', {'msg': 'join room'}, namespace='/chat')
+
+
+def disconnect():
+    logger.info('Socket Disconnected')
+
+# @api.route('/chat/<int:room_id>/breakdown', methods=['GET'])
+# def breakdown(room_id):
+#     pass
