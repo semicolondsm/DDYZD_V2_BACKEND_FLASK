@@ -12,7 +12,8 @@ class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     club_head_id = db.Column(db.Integer, db.ForeignKey('club_head.id'))
-    looked = db.Column(db.Boolean())
+    user_looked = db.Column(db.Boolean())
+    head_looked = db.Column(db.Boolean())
 
     chats = db.relationship('Chat', backref='room', lazy='dynamic')
 

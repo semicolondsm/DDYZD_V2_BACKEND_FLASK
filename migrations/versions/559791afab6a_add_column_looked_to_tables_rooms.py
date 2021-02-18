@@ -21,4 +21,4 @@ def upgrade():
 
 
 def downgrade():
-      op.drop_column('room', 'looked')
+    op.drop_column('room', 'looked')
