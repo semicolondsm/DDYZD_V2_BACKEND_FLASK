@@ -12,11 +12,12 @@ class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     club_head_id = db.Column(db.Integer, db.ForeignKey('club_head.id'))
-    user_looked = db.Column(db.Boolean())
-    head_looked = db.Column(db.Boolean())
+    user_looked = db.Column(db.Boolean(), nullable=False, default=False)
+    head_looked = db.Column(db.Boolean(), nullable=False, default=False)
 
     chats = db.relationship('Chat', backref='room', lazy='dynamic')
 
+    # 유저에 대한 json
     def json(self):
         subquery = ClubHead.query.filter_by(id=self.club_head_id).subquery()
         club = Club.query.join(subquery, subquery.c.club_id==Club.club_id).first()
@@ -24,13 +25,16 @@ class Room(db.Model):
         chat_created_at = chat.created_at.isoformat()+'.000+09:00' if chat is not None else None
         chat_msg = chat.msg if chat is not None else None
         return {
-            'roomid': self.id,
-            'clubid': club.club_id,
-            'clubname': club.club_name,
-            'clubimage': club.profile_image,
-            'lastdate': chat_created_at,
-            'lastmessage': chat_msg
-            }
+		    "roomid" : self.id,
+		    "clubid" : club.club_id,
+		    "clubname" : club.club_name,
+		    "clubimage" : club.profile_image,
+		    "userid": room_user.user_id,
+		    "username": room_user.name,
+		    "userimage": room_user.image_path,
+		    "lastdate" : chat_created_at,
+		    "lastmessage" : chat_msg
+        }
 
     def __repr__(self):
         return '<Room> {}'.format(self.id)
