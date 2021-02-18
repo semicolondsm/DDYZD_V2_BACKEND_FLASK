@@ -23,8 +23,8 @@ def test_ping(flask_websocket):
     assert resp.json.get('msg') == 'ping successfully'
 
 
-def test_chat_list(flask_websocket, headers, db_setting):
-    resp = flask_websocket.flask_test_client.get("/chat/list", headers=headers)
+def test_chat_list(flask_websocket, jwt_token, db_setting):
+    resp = flask_websocket.flask_test_client.get("/chat/list", headers=jwt_token)
     data = resp.data.decode('utf8').replace("'", '"')
     data = json.loads(data)
 
@@ -36,17 +36,12 @@ def test_chat_list(flask_websocket, headers, db_setting):
     assert data[0].get('clubname') == '세미콜론'
 
 
-def test_room_token(flask_websocket, headers, db_setting):  
-    resp = flask_websocket.flask_test_client.post("/chat/1/token", headers=headers)
-    token = resp.json['room-token']
-    payload = jwt.decode(token, Config.ROOM_SECRET_KEY, algorithms=["HS256"])
-
-    assert resp.status_code == 200
-    assert payload['room_id'] == 1
-    assert payload['sub'] == 1
-
-
 def test_join_room(flask_websocket, db_setting):
-    flask_websocket.emit('join_room', {'abc': 'def'}, namespace='/chat')
+    flask_websocket.emit('join_room', {'room-token': room_token}, namespace='/chat')
     recv = flask_websocket.get_received(namespace='/chat')[0]
     assert recv['args'][0]['msg'] == 'join room'
+
+
+def test_send_chat(flask_websocket, db_setting):
+    flask_websocket.emit('send_chat', {'room-token': room_token, 'data': 'Hello!'}, namespace='/chat')
+
