@@ -1,5 +1,6 @@
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import User, Room, ClubHead, Club
+from flask_socketio import leave_room
 from flask_socketio import join_room
 from flask_socketio import emit
 from app import logger
@@ -43,21 +44,26 @@ def connect():
 # 방 입장
 def event_join_room(json):
     join_room(json.get('room_id'))
-    emit('response', {'room_id': json.get('room_id')}, namespace='/chat')
+    emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
+
+
+# 방 나가기
+def event_leave_room(json):
+    leave_room(json.get('room_id'))
+    emit('response', {'msg': 'Leave Room Success'}, namespace='/chat')
 
 
 # 채팅 보내기
 def event_send_chat(json):
-    emit('send', {'data': json.get('data')}, room=json.get('room_id'))
+    emit('recv_chat', {'data': json.get('data')}, room=json.get('room_id'))
     logger.info(str(json))
-    pass
     
 
 # 소켓 연결 끊기
 def disconnect():
     logger.info('[Socket Disconnected]')
 
-
 # @api.route('/chat/<int:room_id>/breakdown', methods=['GET'])
 # def breakdown(room_id):
 #     pass
+

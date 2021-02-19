@@ -16,4 +16,5 @@ api_v1_0.add_url_rule('/club/<int:club_id>/room', 'make_room', make_room, method
 websocket.on_event('connect', connect, namespace='/chat')
 websocket.on_event('disconnect', disconnect, namespace='/chat')
 websocket.on_event('join_room', event_join_room, namespace='/chat')
+websocket.on_event('leave_room', event_leave_room, namespace='/chat')
 websocket.on_event('send_chat', event_send_chat, namespace='/chat')
