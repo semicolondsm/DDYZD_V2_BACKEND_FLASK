@@ -27,11 +27,11 @@ def flask_client(flask_app):
 
 
 @pytest.fixture(scope='session')
-def flask_websocket(flask_app, flask_client):
+def flask_websocket(flask_app, jwt_token, flask_client):
     # 웹 소켓 테스트 클라이언트 생성
     flask_websocket = websocket.test_client(flask_app, flask_test_client=flask_client)
     # 웹 소켓 연결
-    flask_websocket.connect('/chat')
+    flask_websocket.connect('/chat', headers=jwt_token)
     recv = flask_websocket.get_received(namespace='/chat')[0]
     assert recv['args'][0]['msg'] == 'Socket Connect Successfully'
     
@@ -42,7 +42,7 @@ def flask_websocket(flask_app, flask_client):
 
 
 @pytest.fixture(scope='session')
-def headers():
+def jwt_token():
     token = jwt.encode({"sub": 1}, os.getenv("SECRET"), algorithm="HS256")
     headers = {'Authorization': 'Bearer '+ token}
     return headers
