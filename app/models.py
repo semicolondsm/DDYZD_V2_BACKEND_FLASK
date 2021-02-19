@@ -4,8 +4,8 @@ from app import db
 
 class ChatEnum(enum.Enum):
     U = 1  # 유저
-    C = 2  # 봇
-    H = 3  # 방장
+    C = 2  # 동아리장
+    H = 3  # 봇
 
 class Room(db.Model):
     __tablename__ = 'room'
@@ -20,7 +20,7 @@ class Room(db.Model):
     # 유저에 대한 json
     def json(self):
         chat = self.chats.order_by(Chat.created_at.desc()).first()
-        chat_created_at = chat.created_at.isoformat()+'.000+09:00' if chat is not None else None
+        chat_created_at = isoformat(chat.created_at) if chat is not None else None
         chat_msg = chat.msg if chat is not None else None
         return {
 		    "roomid" : self.id,
@@ -44,6 +44,13 @@ class Chat(db.Model):
     msg = db.Column(db.String(512))
     created_at = db.Column(db.DateTime(),  default=datetime.datetime.now)
     user_type = db.Column(db.Enum(ChatEnum))
+
+    def json(self):
+        return {
+            "msg": self.msg,
+            "user_type": self.user_type.name,
+            "created_at": isoformat(self.created_at)
+        }
 
     def __repr__(self):
         return '<Chat> {}'.format(self.msg)
@@ -88,6 +95,19 @@ class User(db.Model):
     club_heads = db.relationship('ClubHead', backref='club_head_user')
     rooms = db.relationship('Room', backref='user')
 
+    def get_chat_section(self):
+        '''
+        내가 동아리장인 동아리들 리스트 출력하는 함수.
+        채팅 섹션을 구해주는 함수이기도 함.
+        '''
+        chs = self.club_heads
+        clubs = []
+        for ch in chs:
+            c = Club.query.get_or_404(ch.club_id)
+            clubs.append({"club_id": c.club_id, "club_name": c.club_name,"club_profile": c.profile_image})
+
+        return clubs
+
     def __repr__(self):
         return '<User> {},{}'.format(self.name, self.gcn)
 
@@ -97,3 +117,7 @@ class Application(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     result = db.Column(db.Boolean())
+
+
+def isoformat(date):
+    return date.isoformat()+'.000+09:00'

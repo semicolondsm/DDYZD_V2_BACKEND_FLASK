@@ -1,5 +1,5 @@
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models import User, Room, ClubHead, Club
+from app.models import User, Room, ClubHead, Club, Chat
 from flask_socketio import leave_room
 from flask_socketio import join_room
 from flask_socketio import emit
@@ -15,14 +15,15 @@ import jwt
 # 채팅들 리스트 반환
 @jwt_required()
 def chat_list():
-    user = User.query.get_or_404(get_jwt_identity())
+    rs = User.query.get_or_404(get_jwt_identity()).rooms
     rooms = []
-    for room in user.rooms:
-        rooms.append(room.json())
+    for r in rs:
+        rooms.append(r.json())
 
     return json.dumps(rooms, ensure_ascii=False).encode('utf8')
 
 
+# 채팅방 만들기
 @jwt_required()
 def make_room(club_id):
     room = Room.query.filter_by(user_id=get_jwt_identity(), club_id=club_id).first_or_404()
@@ -33,6 +34,25 @@ def make_room(club_id):
     
     return {'room_id': room.id}, 200
 
+
+# 채팅 내역 보기
+@jwt_required()
+def breakdown(room_id):
+    cs = Chat.query.filter_by(room_id = room_id).order_by(Chat.created_at.desc()).all()
+    chats = []
+    for c in cs:
+        chats.append(c.json())
+
+    return json.dumps(chats, ensure_ascii=False).encode('utf8'), 200
+
+
+# 채팅 섹션 보기
+@jwt_required()
+def chat_section():
+    user = User.query.get_or_404(get_jwt_identity())
+    sections = user.get_chat_section()
+
+    return json.dumps(sections, ensure_ascii=False).encode('utf8'), 200
 
 # 소켓 연결
 @jwt_required()
@@ -62,8 +82,4 @@ def event_send_chat(json):
 # 소켓 연결 끊기
 def disconnect():
     logger.info('[Socket Disconnected]')
-
-# @api.route('/chat/<int:room_id>/breakdown', methods=['GET'])
-# def breakdown(room_id):
-#     pass
 
