@@ -29,9 +29,9 @@ class Room(db.Model):
 		    "clubid" : club.club_id,
 		    "clubname" : club.club_name,
 		    "clubimage" : club.profile_image,
-		    "userid": room_user.user_id,
-		    "username": room_user.name,
-		    "userimage": room_user.image_path,
+		    "userid": self.room_user.user_id,
+		    "username": self.room_user.name,
+		    "userimage": self.room_user.image_path,
 		    "lastdate" : chat_created_at,
 		    "lastmessage" : chat_msg
         }
