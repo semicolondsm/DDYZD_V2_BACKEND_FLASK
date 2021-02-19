@@ -10,28 +10,26 @@ class ChatEnum(enum.Enum):
 class Room(db.Model):
     __tablename__ = 'room'
     id = db.Column(db.Integer, primary_key=True)
-    user = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    club_head_id = db.Column(db.Integer, db.ForeignKey('club_head.id'))
-    user_looked = db.Column(db.Boolean(), nullable=False, default=False)
-    head_looked = db.Column(db.Boolean(), nullable=False, default=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
+    user_looked = db.Column(db.Boolean(), default=False)
+    club_looked = db.Column(db.Boolean(), default=False)
 
     chats = db.relationship('Chat', backref='room', lazy='dynamic')
 
     # 유저에 대한 json
     def json(self):
-        subquery = ClubHead.query.filter_by(id=self.club_head_id).subquery()
-        club = Club.query.join(subquery, subquery.c.club_id==Club.club_id).first()
         chat = self.chats.order_by(Chat.created_at.desc()).first()
         chat_created_at = chat.created_at.isoformat()+'.000+09:00' if chat is not None else None
         chat_msg = chat.msg if chat is not None else None
         return {
 		    "roomid" : self.id,
-		    "clubid" : club.club_id,
-		    "clubname" : club.club_name,
-		    "clubimage" : club.profile_image,
-		    "userid": self.room_user.user_id,
-		    "username": self.room_user.name,
-		    "userimage": self.room_user.image_path,
+		    "clubid" : self.club_id,
+		    "clubname" : self.club.club_name,
+		    "clubimage" : self.club.profile_image,
+		    "userid": self.user.user_id,
+		    "username": self.user.name,
+		    "userimage": self.user.image_path,
 		    "lastdate" : chat_created_at,
 		    "lastmessage" : chat_msg
         }
@@ -63,6 +61,7 @@ class Club(db.Model):
     hongbo_image = db.Column(db.String(255))
 
     club_head = db.relationship('ClubHead', backref='club')
+    rooms = db.relationship('Room', backref='club')
 
     def __repr__(self):
         return '<Club> {}>'.format(self.club_name)
@@ -72,8 +71,6 @@ class ClubHead(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     club_id = db.Column(db.Integer, db.ForeignKey('club.club_id', ondelete='CASCADE'))
-
-    rooms = db.relationship('Room', backref='club_head')
 
     def __repr__(self):
         return '<ClubHead> {},{}'.format(self.club_head_user.name, self.club.club_name)
@@ -89,7 +86,7 @@ class User(db.Model):
     device_token = db.Column(db.String(4096))
 
     club_heads = db.relationship('ClubHead', backref='club_head_user')
-    rooms = db.relationship('Room', backref='room_user')
+    rooms = db.relationship('Room', backref='user')
 
     def __repr__(self):
         return '<User> {},{}'.format(self.name, self.gcn)
