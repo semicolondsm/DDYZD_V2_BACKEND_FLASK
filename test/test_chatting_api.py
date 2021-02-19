@@ -18,7 +18,7 @@ def db_setting():
     db.session.add(User(name='조호원', gcn='1118'))
     db.session.add(Club(club_name='세미콜론'))
     db.session.add(ClubHead(user_id=2, club_id=1))
-    db.session.add(Room(user=1, club_head_id=1, user_looked=False, head_looked=False))
+    db.session.add(Room(user_id=1, club_id=1))
     db.session.add(Chat(room_id=1, msg='첫번째 채팅', user_type='U'))
 
     db.session.commit()

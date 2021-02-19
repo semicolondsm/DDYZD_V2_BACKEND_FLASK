@@ -24,8 +24,7 @@ def chat_list():
 
 @jwt_required()
 def make_room(club_id):
-    club_head_id = ClubHead.query.filter_by(club_id=club_id).first_or_404().id
-    room = Room.query.filter_by(user=get_jwt_identity(), club_head_id=club_head_id).first_or_404()
+    room = Room.query.filter_by(user_id=get_jwt_identity(), club_id=club_id).first_or_404()
     if room is None:
         room = Room(user=get_jwt_identity(), club_head_id=club_head_id, user_looked=False, head_looked=False)
         db.session.add(room)
