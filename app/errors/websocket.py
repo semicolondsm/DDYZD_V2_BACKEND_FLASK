@@ -1,6 +1,10 @@
 def Unauthorized(msg='401: Unauthorized'):
     return {'msg': msg}
+    
+
+def NotFound(msg="404: NotFound"):
+    return {'msg': msg}
 
 
-def ExpiredSignatureError(msg='401: ExpiredSignatureError'):
+def Forbidden(msg="403: Forbidden"):
     return {'msg': msg}
