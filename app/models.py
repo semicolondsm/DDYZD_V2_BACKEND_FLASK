@@ -58,14 +58,15 @@ class Chat(db.Model):
 class Club(db.Model):
     __tablename__ = 'club'
     club_id = db.Column(db.Integer, primary_key=True)
-    club_name = db.Column(db.String(45))
-    total_budget = db.Column(db.Integer)
-    current_budget = db.Column(db.Integer)
+    club_name = db.Column(db.String(45), nullable=False)
+    total_budget = db.Column(db.Integer, nullable=False)
+    current_budget = db.Column(db.Integer, nullable=False)
     start_at = db.Column(db.DateTime())
     close_at = db.Column(db.DateTime())
-    banner_image = db.Column(db.String(255))
-    profile_image = db.Column(db.String(255))
-    hongbo_image = db.Column(db.String(255))
+    banner_image = db.Column(db.String(255), nullable=False)
+    profile_image = db.Column(db.String(255), nullable=False)
+    hongbo_image = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255))
 
     club_head = db.relationship('ClubHead', backref='club')
     rooms = db.relationship('Room', backref='club')
@@ -91,6 +92,7 @@ class User(db.Model):
     github_url = db.Column(db.String(45))
     email = db.Column(db.String(50))
     device_token = db.Column(db.String(4096))
+    bio = db.Column(db.String(256))
 
     club_heads = db.relationship('ClubHead', backref='club_head_user')
     rooms = db.relationship('Room', backref='user')
@@ -108,6 +110,13 @@ class User(db.Model):
 
         return clubs
 
+    def is_user(self, room):
+        return self.user_id == room.user_id
+
+    def is_clubhead(self, room):
+        club_head = ClubHead.query.filter_by(user_id=self.user_id, club_id=room.club_id).first()
+        return club_head is not None
+
     def __repr__(self):
         return '<User> {},{}'.format(self.name, self.gcn)
 
@@ -116,7 +125,7 @@ class Application(db.Model):
     application_id = db.Column(db.Integer, primary_key=True)
     club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    result = db.Column(db.Boolean())
+    result = db.Column(db.Boolean(), nullable=False)
 
 
 def isoformat(date):
