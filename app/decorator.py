@@ -29,14 +29,16 @@ def clubhead_required(fn):
 def room_token_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
+        logger.info(str(args))
         token = args[0].get('room_token')
         try:
             json = jwt.decode(token, Config.ROOM_SECRET_KEY, algorithms="HS256")
         except jwt.ExpiredSignatureError as e:
-            return emit('error', websocket.Unauthorized('401: ExpiredSignatureError'))
+            return emit('error', websocket.Unauthorized('ExpiredSignatureError'))
         except Exception as e:
             return emit('error', websocket.Forbidden())
 
-        json['data'] = args[0].get('data')
+        json['msg'] = args[0].get('msg')
+        json['major'] = args[0].get('major')
         return fn(json)
     return wrapper
