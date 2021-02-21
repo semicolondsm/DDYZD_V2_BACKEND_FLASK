@@ -8,10 +8,10 @@ from flask_jwt_extended import jwt_required
 from flask_socketio import emit
 
 
-def get_apply_message():
-    title= '{name}님이 지원하셨습니다.'.format(name) 
+def get_apply_message(user, club, field=None):
+    title= '{name}님이 지원하셨습니다.'.format(name=user.name) 
     msg = '{gcn} {name}님이 {club}에 {field}분야로 지원하셨습니다.'\
-        .format(gcn=, name=, club=, field=)
+        .format(gcn=user.gcn, name=user.name, club=club.club_name, field=field)
     
     return {'title': title, 'msg': msg}
 
@@ -30,7 +30,7 @@ def helper_apply(json):
     if major not in club.majors:
         return emit('error', {'msg': websocket.BadRequest('Club does not need '+major.major_name)}, namespace='/chat')
     
-    emit('response', get_apply_message(user, club), room=json.get('room_id'))
+    emit('response', get_apply_message(user, club, json.get('field')), room=json.get('room_id'))
     logger.info(json.get('room_id'))
 
 
