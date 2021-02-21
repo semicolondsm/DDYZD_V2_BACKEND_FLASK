@@ -1,7 +1,8 @@
-from app.errors.http import Forbidden
 from app.decorator import clubhead_required
 from app.decorator import room_token_required
 from app.models import User, Room, ClubHead, Club, Chat
+from app.errors import http
+from app.errors import websocket
 from app import db
 from app import logger
 from config import Config
@@ -71,10 +72,10 @@ def room_token(room_id):
     user = User.query.get_or_404(get_jwt_identity()) 
     if user.is_user(room=room):
         token = jwt.encode({"room_id": room.id, 'user_id': get_jwt_identity(), "user_type": 'U', \
-            "exp": datetime.utcnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
+            'club_id': room.club_id ,"exp": datetime.utcnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
     elif user.is_clubhead(room=room):
         token = jwt.encode({"room_id": room.id, 'user_id': get_jwt_identity(), "user_type": 'C', \
-            "exp": datetime.utcnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
+            'club_id': room.club_id, "exp": datetime.utcnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
 
     return {'room_token': token}, 200
 
@@ -97,8 +98,8 @@ def event_join_room(json):
 @room_token_required
 def event_send_chat(json):
     logger.info('JSON: '+str(json))
-    emit('recv_chat', {'data': json.get('data')}, room=json.get('room_id'))
-    db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('data'), user_type=json.get('user_type')))
+    emit('recv_chat', {'msg': json.get('msg')}, room=json.get('room_id'))
+    db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    
 
 # 방 나가기
