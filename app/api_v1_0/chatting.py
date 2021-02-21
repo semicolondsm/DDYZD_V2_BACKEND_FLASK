@@ -76,7 +76,8 @@ def room_token(room_id):
     elif user.is_clubhead(room=room):
         token = jwt.encode({"room_id": room.id, 'user_id': get_jwt_identity(), "user_type": 'C', \
             'club_id': room.club_id, "exp": datetime.utcnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
-
+    else:
+        return http.BadRequest("You are not a member for the room: "+str(room.id))
     return {'room_token': token}, 200
 
 
