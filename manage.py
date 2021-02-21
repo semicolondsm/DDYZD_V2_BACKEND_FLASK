@@ -3,7 +3,7 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell
 from app import db
 from app import websocket
-from app.models import Room, Chat, Club, ClubHead, User, Application
+from app.models import Room, Chat, Club, ClubHead, User, Application, Major
 import os
 
 config = os.getenv('FLASK_CONFIG')
@@ -16,7 +16,7 @@ manager = Manager(app)
 
 def make_shell_context():
     return dict(app=app, db=db, Room=Room, Chat=Chat, Application=Application, 
-                Club=Club, ClubHead=ClubHead, User=User)
+                Club=Club, ClubHead=ClubHead, User=User, Major=Major)
 
 manager.add_command('db', MigrateCommand)
 manager.add_command('shell', Shell(make_context=make_shell_context))

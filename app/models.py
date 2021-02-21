@@ -70,6 +70,10 @@ class Club(db.Model):
 
     club_head = db.relationship('ClubHead', backref='club')
     rooms = db.relationship('Room', backref='club')
+    majors = db.relationship('Major', backref='club')
+
+    def is_recruiting(self):
+        return datetime.now() >= self.start_at and datetime.now() <= self.close_at 
 
     def __repr__(self):
         return '<Club> {}>'.format(self.club_name)
@@ -126,6 +130,12 @@ class Application(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     result = db.Column(db.Boolean(), nullable=False)
+
+class Major(db.Model):
+    __tablename__ = 'major'
+    id = db.Column(db.Integer, primary_key=True)
+    club_id = db.Column(db.Integer, db.ForeignKey("club.club_id"))
+    major_name = db.Column(db.String(45))
 
 
 def isoformat(date):
