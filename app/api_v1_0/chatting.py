@@ -22,13 +22,16 @@ import jwt
 @jwt_required()
 @clubhead_required
 def chat_list():
-    club_id = request.args.get('club_id')
     user = User.query.get_or_404(get_jwt_identity())
+    # 유저 권한의 채팅방 검색
     rooms = []
-    rs = user.rooms if club_id == None else Room.query.filter_by(club_id=club_id).all()
+    for r in user.rooms:
+        rooms.append(r.json(is_user=True))
 
-    for r in rs:
-        rooms.append(r.json())
+    # 동아리장 권한의 채팅방 검색
+    for c in user.get_clubs():
+        r = Room.query.filter_by(club_id=c.club_id).first_or_404()
+        rooms.append(r.json(is_user=False))
 
     return json.dumps(rooms, ensure_ascii=False).encode('utf8')
 
@@ -56,15 +59,6 @@ def breakdown(room_id):
     return json.dumps(chats, ensure_ascii=False).encode('utf8'), 200
 
 
-# 채팅 섹션 보기
-@jwt_required()
-def chat_section():
-    user = User.query.get_or_404(get_jwt_identity())
-    sections = user.get_chat_section()
-
-    return json.dumps(sections, ensure_ascii=False).encode('utf8'), 200
-
-
 # 룸 토큰 반환
 @jwt_required()
 def room_token(room_id):
@@ -82,7 +76,6 @@ def room_token(room_id):
 
 
 # 소켓 연결
-@jwt_required()
 def connect():
     logger.info('[Socket Connect Successfully] - '+str(request.headers).strip())
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
@@ -102,6 +95,7 @@ def event_send_chat(json):
     emit('recv_chat', {'msg': json.get('msg')}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    
+
 
 # 방 나가기
 @room_token_required

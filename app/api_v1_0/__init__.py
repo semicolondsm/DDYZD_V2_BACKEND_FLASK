@@ -15,7 +15,6 @@ def ping():
 api_v1_0.add_url_rule('/chat/list', 'chat_list', chat_list, methods=['GET'])
 api_v1_0.add_url_rule('/chat/<int:club_id>/room', 'make_room', make_room, methods=['POST'])
 api_v1_0.add_url_rule('/chat/<int:room_id>/breakdown', 'breakdown', breakdown, methods=['GET'])
-api_v1_0.add_url_rule('/chat/section', 'chat_section', chat_section, methods=['GET'])
 api_v1_0.add_url_rule('/room/<int:room_id>/token', 'room_token', room_token, methods=['GET'])
 
 # chathelper event

@@ -17,21 +17,34 @@ class Room(db.Model):
 
     chats = db.relationship('Chat', backref='room', lazy='dynamic')
 
-    # 유저에 대한 json
-    def json(self):
+    def last_message(self):
         chat = self.chats.order_by(Chat.created_at.desc()).first()
-        chat_created_at = isoformat(chat.created_at) if chat is not None else None
-        chat_msg = chat.msg if chat is not None else None
+        msg = chat.msg if chat is not None else None
+        created_at = isoformat(chat.created_at) if chat is not None else None
+        return msg, created_at 
+
+    def json(self, is_user):
+        msg, created_at = self.last_message()
+        user = User.query.get(self.user_id)
+        club = Club.query.get(self.club_id)
+        if is_user:
+            id = club.club_id
+            name = club.club_name
+            image = club.profile_image
+            authority = club.club_name
+        else:
+            id = user.user_id
+            name = user.name
+            image = user.image_path
+            authority = user.name
         return {
 		    "roomid" : self.id,
-		    "clubid" : self.club_id,
-		    "clubname" : self.club.club_name,
-		    "clubimage" : self.club.profile_image,
-		    "userid": self.user.user_id,
-		    "username": self.user.name,
-		    "userimage": self.user.image_path,
-		    "lastdate" : chat_created_at,
-		    "lastmessage" : chat_msg
+		    "id" : id,
+		    "name" : name,
+		    "image" : image,
+		    "lastdate" : created_at,
+		    "lastmessage" : msg,
+            "authority": authority
         }
 
     def __repr__(self):
@@ -101,16 +114,12 @@ class User(db.Model):
     club_heads = db.relationship('ClubHead', backref='club_head_user')
     rooms = db.relationship('Room', backref='user')
 
-    def get_chat_section(self):
+    def get_clubs(self):
         '''
         내가 동아리장인 동아리들 리스트 출력하는 함수.
-        채팅 섹션을 구해주는 함수이기도 함.
         '''
-        chs = self.club_heads
         clubs = []
-        for ch in chs:
-            c = Club.query.get_or_404(ch.club_id)
-            clubs.append({"club_id": c.club_id, "club_name": c.club_name,"club_profile": c.profile_image})
+        clubs.append(Club.query.get_or_404(ch.club_id)) for ch in self.club_heads
 
         return clubs
 
