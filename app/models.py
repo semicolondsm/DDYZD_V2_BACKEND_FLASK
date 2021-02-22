@@ -23,20 +23,18 @@ class Room(db.Model):
         created_at = isoformat(chat.created_at) if chat is not None else None
         return msg, created_at 
 
-    def json(self, is_user):
+    def json(self, is_user, authority):
         msg, created_at = self.last_message()
-        user = User.query.get(self.user_id)
-        club = Club.query.get(self.club_id)
         if is_user:
+            club = Club.query.get(self.club_id)
             id = club.club_id
             name = club.club_name
             image = club.profile_image
-            authority = club.club_name
         else:
+            user = User.query.get(self.user_id)
             id = user.user_id
             name = user.name
-            image = user.image_path
-            authority = user.name
+            image = user.image_pa
         return {
 		    "roomid" : self.id,
 		    "id" : id,
@@ -85,6 +83,9 @@ class Club(db.Model):
     rooms = db.relationship('Room', backref='club')
     majors = db.relationship('Major', backref='club')
 
+    def __lt__(self, operand):
+        return self.club_name < operand.club_name
+
     def is_recruiting(self):
         return datetime.now() >= self.start_at and datetime.now() <= self.close_at 
 
@@ -114,12 +115,14 @@ class User(db.Model):
     club_heads = db.relationship('ClubHead', backref='club_head_user')
     rooms = db.relationship('Room', backref='user')
 
+
     def get_clubs(self):
         '''
         내가 동아리장인 동아리들 리스트 출력하는 함수.
         '''
         clubs = []
-        clubs.append(Club.query.get_or_404(ch.club_id)) for ch in self.club_heads
+        for ch in self.club_heads:
+            clubs.append(Club.query.get_or_404(ch.club_id)) 
 
         return clubs
 
