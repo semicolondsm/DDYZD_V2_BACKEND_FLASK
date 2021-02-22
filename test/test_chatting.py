@@ -24,32 +24,28 @@ def test_chat_list(flask_client, db_setting):
     data = resp.data.decode('utf8').replace("'", '"')
     data = json.loads(data)
 
-    assert data[0].get('roomid') == 1
-    assert data[0].get('clubid') == 1
-    assert data[0].get('clubname') == '세미콜론'
-    assert data[0].get('clubimage') == 'profile_image'
-    assert data[0].get('userid') == 2
-    assert data[0].get('username') == '조호원'
-    assert data[0].get('userimage') == 'profile2'
-    assert data[0].get('lastdate') != None
-    assert data[0].get('lastmessage') == '두번째 채팅'
+    assert data['club_section'] == ['조호원']
+    assert data['rooms'][0].get('roomid') == 1
+    assert data['rooms'][0].get('id') == 1
+    assert data['rooms'][0].get('name') == '세미콜론'
+    assert data['rooms'][0].get('image') == 'profile_image'
+    assert data['rooms'][0].get('lastdate') != None
+    assert data['rooms'][0].get('index') == 0
 
 
     # 동아리장 채팅 테스트
-    resp = flask_client.get("/chat/list?club_id=1", headers=jwt_token(1))
+    resp = flask_client.get("/chat/list", headers=jwt_token(1))
     assert resp.status_code == 200
     data = resp.data.decode('utf8').replace("'", '"')
     data = json.loads(data)
-    
-    assert data[0].get('roomid') == 1
-    assert data[0].get('clubid') == 1
-    assert data[0].get('clubname') == '세미콜론'
-    assert data[0].get('clubimage') == 'profile_image'
-    assert data[0].get('userid') == 2
-    assert data[0].get('username') == '조호원'
-    assert data[0].get('userimage') == 'profile2'
-    assert data[0].get('lastdate') != None
-    assert data[0].get('lastmessage') == '두번째 채팅'
+
+    assert data['club_section'] == ['김수완', '세미콜론']
+    assert data['rooms'][0].get('roomid') == 1
+    assert data['rooms'][0].get('id') == 2
+    assert data['rooms'][0].get('name') == '조호원'
+    assert data['rooms'][0].get('image') == 'profile2'
+    assert data['rooms'][0].get('lastdate') != None
+    assert data['rooms'][0].get('index') == 1
 
 
 ## 방 만들기 테스트 ##
