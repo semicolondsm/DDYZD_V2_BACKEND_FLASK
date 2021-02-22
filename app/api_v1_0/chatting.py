@@ -82,7 +82,7 @@ def room_token(room_id):
 
 # 소켓 연결
 def connect():
-    logger.info('[Socket Connect Successfully] - '+str(request.headers).strip())
+    logger.info('[Socket Connect Successfully] - '+str(request.headers).strip('').replace('\n', ' '))
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
 
 
@@ -90,6 +90,7 @@ def connect():
 @room_token_required
 def event_join_room(json):
     join_room(json.get('room_id'))
+    logger.info('[Join Room] - '+str(request.headers).strip('').replace('\n', ' '))
     emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
 
 
@@ -98,6 +99,7 @@ def event_join_room(json):
 def event_send_chat(json):
     logger.info('JSON: '+str(json))
     emit('recv_chat', {'msg': json.get('msg')}, room=json.get('room_id'))
+    logger.info('[Send Chat] - '+str(request.headers).strip('').replace('\n', ' '))
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    
 
@@ -106,6 +108,7 @@ def event_send_chat(json):
 @room_token_required
 def event_leave_room(json):
     leave_room(json.get('room_id'))
+    logger.info('[Leave Room] - '+str(request.headers).strip('').replace('\n', ' '))
     emit('response', {'msg': 'Leave Room Success'}, namespace='/chat')
 
 
