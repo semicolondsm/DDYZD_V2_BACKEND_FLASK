@@ -24,17 +24,19 @@ import jwt
 def chat_list():
     user = User.query.get_or_404(get_jwt_identity())
     # 유저 권한의 채팅방 검색
-    authority = 0
+    index = 0
     rooms = []
-    club_section = [user.name] + user.get_clubs()
+    club_section = [user.name] 
+    for club in user.get_clubs():
+        club_section.append(club.club_name)
     for r in user.rooms:    
-        rooms.append(r.json(is_user=True, authority=authority))
+        rooms.append(r.json(is_user=True, index=index))
 
     # 동아리장 권한의 채팅방 검색
-    for c in user.get_clubs().sort():
-        authority = authority + 1
+    for c in user.get_clubs():
+        index = index + 1
         for r in c.rooms:
-            rooms.append(r.json(is_user=False, authority=authority))
+            rooms.append(r.json(is_user=False, index=index))
 
     return {"club_section": club_section, "rooms": rooms}, 200
 

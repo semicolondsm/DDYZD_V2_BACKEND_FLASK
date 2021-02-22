@@ -23,7 +23,7 @@ class Room(db.Model):
         created_at = isoformat(chat.created_at) if chat is not None else None
         return msg, created_at 
 
-    def json(self, is_user, authority):
+    def json(self, is_user, index):
         msg, created_at = self.last_message()
         if is_user:
             club = Club.query.get(self.club_id)
@@ -34,7 +34,7 @@ class Room(db.Model):
             user = User.query.get(self.user_id)
             id = user.user_id
             name = user.name
-            image = user.image_pa
+            image = user.image_path
         return {
 		    "roomid" : self.id,
 		    "id" : id,
@@ -42,7 +42,7 @@ class Room(db.Model):
 		    "image" : image,
 		    "lastdate" : created_at,
 		    "lastmessage" : msg,
-            "authority": authority
+            "index": index
         }
 
     def __repr__(self):
@@ -118,12 +118,15 @@ class User(db.Model):
 
     def get_clubs(self):
         '''
-        내가 동아리장인 동아리들 리스트 출력하는 함수.
+        내가 동아리장인 동아리들 이름 출력하는 함수.
         '''
         clubs = []
         for ch in self.club_heads:
             clubs.append(Club.query.get_or_404(ch.club_id)) 
-
+        try:
+            clubs.sort()
+        except TypeError:
+            clubs = []
         return clubs
 
     def is_user(self, room):
