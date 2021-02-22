@@ -54,19 +54,19 @@ def test_chat_list(flask_client, db_setting):
 
 ## 방 만들기 테스트 ##
 def test_make_room(flask_client, db_setting):
-    resp = flask_client.post('/club/1/room', headers=jwt_token(2))
+    resp = flask_client.post('/chat/1/room', headers=jwt_token(2))
     assert resp.status_code == 200
     data = resp.json
 
     assert data.get('room_id') == 1
 
-    resp = flask_client.post('/club/1/room', headers=jwt_token(2))
+    resp = flask_client.post('/chat/1/room', headers=jwt_token(2))
     assert resp.status_code == 200
     data = resp.json
 
     assert data.get('room_id') == 1
 
-    resp = flask_client.post('/club/1/room', headers=jwt_token(1))
+    resp = flask_client.post('/chat/1/room', headers=jwt_token(1))
     assert resp.status_code == 200
     data = resp.json
 
@@ -88,22 +88,10 @@ def test_breakdown(flask_client, db_setting):
     assert data[1].get('created_at') != None
 
 
-## 채팅 섹션 테스트 ##
-def test_chat_section(flask_client, db_setting):
-    resp = flask_client.get('/chat/section', headers=jwt_token(1))
-    assert resp.status_code == 200
-    data = resp.data.decode('utf8').replace("'", '"')
-    data = json.loads(data)
-
-    assert data[0].get('club_name') == '세미콜론'
-    assert data[0].get('club_id') == 1
-    assert data[0].get('club_profile') == 'profile_image'
-
-
 ## 룸 토큰 반환 테스트 ##
 def test_room_token(flask_client, db_setting):
     # 동아리장 토큰 
-    resp = flask_client.post('/room/1/token', headers=jwt_token(1))
+    resp = flask_client.get('/room/1/token', headers=jwt_token(1))
     assert resp.status_code == 200
     token = resp.json['room_token']
     json = jwt.decode(token, Config.ROOM_SECRET_KEY, algorithms='HS256')
@@ -113,7 +101,7 @@ def test_room_token(flask_client, db_setting):
     assert json.get('user_type') == 'C' 
 
     # 일반 유저 토큰
-    resp = flask_client.post('/room/1/token', headers=jwt_token(2))
+    resp = flask_client.get('/room/1/token', headers=jwt_token(2))
     assert resp.status_code == 200
     token = resp.json['room_token']
     json = jwt.decode(token, Config.ROOM_SECRET_KEY, algorithms='HS256')
@@ -134,18 +122,18 @@ def test_join_room(flask_websocket, db_setting):
 ## 채팅 보내기 테스트 ## 
 def test_send_chat(flask_websocket, db_setting):
     # 동아리장 채팅
-    flask_websocket.emit('send_chat',{'data': 'Hello', 'room_token': room_token()}, namespace='/chat')
+    flask_websocket.emit('send_chat',{'msg': 'Hello', 'room_token': room_token()}, namespace='/chat')
     recv = flask_websocket.get_received(namespace='/chat')[0]
 
     assert recv['name'] != 'error'
-    assert recv['args'][0]['data'] == 'Hello'
+    assert recv['args'][0]['msg'] == 'Hello'
 
     # 동아리원 채팅
-    flask_websocket.emit('send_chat', {'data': 'World!', 'room_token': room_token(user_id=2, user_type='U')}, namespace='/chat')
+    flask_websocket.emit('send_chat', {'msg': 'World!', 'room_token': room_token(user_id=2, user_type='U')}, namespace='/chat')
     recv = flask_websocket.get_received(namespace='/chat')[0]
 
     assert recv['name'] != 'error'
-    assert recv['args'][0]['data'] == 'World!'
+    assert recv['args'][0]['msg'] == 'World!'
 
 
 ## 방 나가기 테스트 (채팅 보내고 난 뒤에 실행 되어야함!) ## 
