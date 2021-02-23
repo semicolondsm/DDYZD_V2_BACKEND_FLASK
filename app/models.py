@@ -5,7 +5,9 @@ from app import db
 class ChatEnum(enum.Enum):
     U = 1  # 유저
     C = 2  # 동아리장
-    H = 3  # 봇
+    H1 = 3 # 동아리 지원
+    H2 = 4 # 면접 일정
+    H3 = 5 # 면접 결과
 
 class Room(db.Model):
     __tablename__ = 'room'
