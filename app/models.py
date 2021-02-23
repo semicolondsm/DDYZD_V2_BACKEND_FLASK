@@ -29,7 +29,7 @@ class Room(db.Model):
             club = Club.query.get(self.club_id)
             id = club.club_id
             name = club.club_name
-            image = club.profile_image
+            image = 'https://api.semicolon.live/file/'+club.profile_image
         else:
             user = User.query.get(self.user_id)
             id = user.user_id
