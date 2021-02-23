@@ -106,6 +106,7 @@ def test_room_token(flask_client, db_setting):
     assert json.get('user_id') == 2
     assert json.get('user_type') == 'U' 
 
+
 ## 지원자 리스트 반환 테스트 ##
 def test_applicant_list(flask_client, db_setting):
     resp = flask_client.get('/club/1/applicant', headers=jwt_token(1))

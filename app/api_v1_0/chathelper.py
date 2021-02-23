@@ -41,19 +41,19 @@ def helper_apply(json):
         return emit('error', {'msg': websocket.BadRequest('Club does not need '+str(json.get('major')))}, namespace='/chat')
     
     title, msg = get_apply_message(user=user, club=club, major=major)
+    emit('recv_chat', {'title': title, 'msg': msg}, room=json.get('room_id'))
+    
     db.session.add(Application(club_id=json.get('club_id'), user_id=json.get('user_id'), result=False))
     db.session.add(Chat(room_id=json.get('room_id'), title, msg=msg, user_type='H'))
     db.session.commit()
     
     logger.info('[Helper Apply] - '+ msg)
-    emit('response', {'title': title, 'msg': msg}}, room=json.get('room_id'))
 
 
 @room_token_required
 @schedule_information_required
 def helper_schedule(json):
-    
-
+    pass
 
 def helper_result(json):
     pass
