@@ -52,9 +52,9 @@ def chat_message_required(fn):
     return wrapper
 
 
-def schedule_required(fn):
+def schedule_information_required(fn):
     @wraps(fn)
     def wrapper(json):
-        
+
         return fn(json)
     return wrapper
