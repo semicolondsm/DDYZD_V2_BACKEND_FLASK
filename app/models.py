@@ -25,6 +25,13 @@ class Room(db.Model):
         created_at = isoformat(chat.created_at) if chat is not None else None
         return msg, created_at 
 
+    def is_member(self, user):
+        if self.user == user:
+            return True
+        if self.club.club_head[0].user_id == user.user_id:
+            return True
+        return False
+
     def json(self, is_user, index):
         msg, created_at = self.last_message()
         if is_user:
@@ -61,7 +68,7 @@ class Chat(db.Model):
 
     def json(self):
         return {
-            'title': self.title,
+            "title": self.title,
             "msg": self.msg,
             "user_type": self.user_type.name,
             "created_at": isoformat(self.created_at)
@@ -69,7 +76,7 @@ class Chat(db.Model):
 
     def __repr__(self):
         return '<Chat> {}'.format(self.msg)
-    
+
 class Club(db.Model):
     __tablename__ = 'club'
     club_id = db.Column(db.Integer, primary_key=True)
@@ -127,7 +134,7 @@ class User(db.Model):
     email = db.Column(db.String(50))
     device_token = db.Column(db.String(4096))
     bio = db.Column(db.String(256))
-
+    
     rooms = db.relationship('Room', backref='user', lazy='dynamic')
     club_heads = db.relationship('ClubHead', backref='club_head_user')
     applicants = db.relationship('Application', backref='user')

@@ -50,8 +50,23 @@ def make_room(club_id):
         room = Room(user_id=get_jwt_identity(), club_id=club_id)
         db.session.add(room)
         db.session.commit()
+    if not room.is_member(User.query.get_or_404(get_jwt_identity())):
+        return http.BadRequest('You do not have permission this room')
 
-    return {'room_id': str(room.id)}, 200
+    return {'room_id': str(room.id), }, 200
+
+
+# 채팅방 정보
+@jwt_required()
+def room_info(room_id):
+    room = Room.query.get_or_404(room_id)
+    user = User.query.get_or_404(get_jwt_identity())
+    if not room.is_member(user):
+        return http.BadRequest('You do not have permission this room')
+    if user.is_user(room):
+        return {'id': str(room.user.gcn), 'image': room.user.image_path}
+    else:
+        return {'id': str(room.club.club_id), 'image': 'https://api.semicolon.live/file/'+room.club.profile_image}
 
 
 # 채팅 내역 보기
