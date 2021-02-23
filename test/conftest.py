@@ -1,4 +1,4 @@
-from app.models import Room, Chat, Club, ClubHead, User, Application
+from app.models import Room, Chat, Club, ClubHead, User, Application, Major
 from app import create_app
 from app import websocket
 from app import db
@@ -18,9 +18,9 @@ def jwt_token(sub=1):
     return headers
 
 
-def room_token(user_id=1, room_id=1, user_type='C'):
+def room_token(user_id=1, room_id=1, club_id=1, user_type='C'):
     token = jwt.encode({"room_id": room_id, 'user_id': user_id, "user_type": user_type, \
-        "exp": datetime.utcnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
+        "exp": datetime.utcnow()+timedelta(days=1), 'club_id': club_id}, Config.ROOM_SECRET_KEY, algorithm="HS256")
     return token
 
 
@@ -64,13 +64,13 @@ def db_setting():
     db.session.add(User(name='김수완', gcn='1103', image_path='profile1'))
     db.session.add(User(name='조호원', gcn='1118', image_path='profile2'))
     db.session.add(User(name='안은결', gcn='1413', image_path='profile3'))
-    db.session.add(Club(club_name='세미콜론', total_budget=3000, current_budget=2000, banner_image='banner image', hongbo_image='hongbo image', profile_image='profile_image'))
+    db.session.add(Club(club_name='세미콜론', total_budget=3000, current_budget=2000, banner_image='banner image', hongbo_image='hongbo image', profile_image='profile_image', start_at=datetime.now()-timedelta(days=1), close_at=datetime.now()+timedelta(days=1)))
     db.session.add(ClubHead(user_id=1, club_id=1))
     db.session.add(Room(user_id=2, club_id=1))
     db.session.add(Room(user_id=3, club_id=1))
     db.session.add(Chat(room_id=1, msg='첫번째 채팅', user_type='U'))
     db.session.add(Chat(room_id=1, msg='두번째 채팅', user_type='C'))
+    db.session.add(Major(club_id=1, major_name='프론트엔드'))
     db.session.add(Application(user_id=2, club_id=1, result=False))
-    db.session.add(Application(user_id=3, club_id=1, result=False))
 
     db.session.commit()
