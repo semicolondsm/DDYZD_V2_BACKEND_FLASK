@@ -44,7 +44,7 @@ def helper_apply(json):
     emit('recv_chat', {'title': title, 'msg': msg}, room=json.get('room_id'))
     
     db.session.add(Application(club_id=json.get('club_id'), user_id=json.get('user_id'), result=False))
-    db.session.add(Chat(room_id=json.get('room_id'), title, msg=msg, user_type='H'))
+    db.session.add(Chat(room_id=json.get('room_id'), title=title, msg=msg, user_type='H'))
     db.session.commit()
     
     logger.info('[Helper Apply] - '+ msg)
