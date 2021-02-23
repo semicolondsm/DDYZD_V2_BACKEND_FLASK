@@ -17,8 +17,8 @@ from flask_socketio import emit
 
 
 def get_apply_message(user, club, major):
-    title = '{name}님이 동아리에 지원하셨습니다.'.format(name=user.name) 
-    msg = '{gcn} {name}님이 {club}에 {major} 분야로 지원하셨습니다.'\
+    title = '{name}님이 동아리에 지원하셨습니다'.format(name=user.name) 
+    msg = '{gcn} {name}님이 {club}에 {major} 분야로 지원하셨습니다'\
         .format(gcn=user.gcn, name=user.name, club=club.club_name, major=major.major_name)
     
     return title, msg
