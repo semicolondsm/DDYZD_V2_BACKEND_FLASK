@@ -120,13 +120,7 @@ def test_applicant_list(flask_client, db_setting):
     assert data[0]['lastdate'] != None
     assert data[0]['lastmessage'] == '두번째 채팅'
     assert data[0]['index'] == 0
-    assert data[1]['roomid'] == 2
-    assert data[1]['id'] == 3
-    assert data[1]['image'] == 'profile3'
-    assert data[1]['lastdate'] == None
-    assert data[1]['lastmessage'] == None
-    assert data[1]['index'] == 0
-
+    
 
 ## 방 들어가기 테스트 (채팅 보내기 전에 먼저 실행하자)## 
 def test_join_room(flask_websocket, db_setting):
