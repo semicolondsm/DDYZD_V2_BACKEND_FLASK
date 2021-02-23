@@ -86,6 +86,12 @@ class Club(db.Model):
     def __lt__(self, operand):
         return self.club_name < operand.club_name
 
+    def get_all_applicant_room(self):
+        '''
+        모든 동아리 신청자 반환하는 메서드
+        '''
+        return Room.query.join(User, Room.user_id==User.user_id).join(Application, User.user_id==Application.user_id).filter_by(club_id=self.club_id, result=False).all()
+
     def is_recruiting(self):
         return datetime.now() >= self.start_at and datetime.now() <= self.close_at 
 
@@ -112,13 +118,13 @@ class User(db.Model):
     device_token = db.Column(db.String(4096))
     bio = db.Column(db.String(256))
 
+    rooms = db.relationship('Room', backref='user', lazy='dynamic')
     club_heads = db.relationship('ClubHead', backref='club_head_user')
-    rooms = db.relationship('Room', backref='user')
-
+    applicants = db.relationship('Application', backref='user')
 
     def get_clubs(self):
         '''
-        내가 동아리장인 동아리들 이름 출력하는 함수.
+        내가 동아리장인 동아리들 이름 출력하는 메서드
         '''
         clubs = []
         for ch in self.club_heads:
@@ -130,11 +136,39 @@ class User(db.Model):
         return clubs
 
     def is_user(self, room):
+        '''
+        내가 채팅방의 일반 유저인지 확인하는 메서드
+        '''
         return self.user_id == room.user_id
-
-    def is_clubhead(self, room):
-        club_head = ClubHead.query.filter_by(user_id=self.user_id, club_id=room.club_id).first()
+  
+    def is_clubhead(self, club=None, room=None):
+        '''
+        내가 채팅방 혹은 동아리의 동아리장인지 확인하는 메서드
+        '''
+        if room is not None:
+            club_head = ClubHead.query.filter_by(user_id=self.user_id, club_id=room.club_id).first()
+        if club is not None:
+            club_head = ClubHead.query.filter_by(user_id=self.user_id, club_id=club.club_id).first()
+       
         return club_head is not None
+
+    def is_applicant(self, club, result=False):
+        '''
+        내가 동아리에 신청했는지 아는 메서드
+        result가 False이면 신청중인 사람,
+        result가 True이면 동아리에 합격한 사람
+        '''
+        return Application.query.filter_by(user_id=self.user_id, club_id=club.club_id, result=result).first()
+
+    def is_member(self, club):
+        '''
+        내가 동아리의 맴버인지 아는 메서드
+        '''
+        if self.is_clubhead(club=club):
+            return True
+        if self.is_applicant(club=club, result=True):
+            return True
+        return False
 
     def __repr__(self):
         return '<User> {},{}'.format(self.name, self.gcn)
@@ -144,7 +178,7 @@ class Application(db.Model):
     application_id = db.Column(db.Integer, primary_key=True)
     club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    result = db.Column(db.Boolean(), nullable=False)
+    result = db.Column(db.Boolean(), nullable=True)
 
 class Major(db.Model):
     __tablename__ = 'major'
