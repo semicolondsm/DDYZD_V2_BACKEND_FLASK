@@ -1,4 +1,5 @@
 from app.decorator import room_token_required
+from app.decorator import chat_message_required
 from app.models import User, Room, ClubHead, Club, Chat, Application
 from app.errors import http
 from app.errors import websocket
@@ -110,6 +111,7 @@ def event_join_room(json):
 
 # 채팅 보내기
 @room_token_required
+@chat_message_required
 def event_send_chat(json):
     logger.info('JSON: '+str(json))
     emit('recv_chat', {'msg': json.get('msg')}, room=json.get('room_id'))

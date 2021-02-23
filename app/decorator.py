@@ -24,8 +24,37 @@ def room_token_required(fn):
             return emit('error', websocket.Unauthorized('ExpiredSignatureError'))
         except Exception as e:
             return emit('error', websocket.Forbidden())
+        json['args'] = args[0]
 
-        json['msg'] = args[0].get('msg')
-        json['major'] = args[0].get('major')
+        return fn(json)
+    return wrapper
+
+
+def apply_message_required(fn):
+    @wraps(fn)
+    def wrapper(json):
+        json['major'] = json.get('args').get('major')
+        if json['major'] is None:
+            return emit('error', {'msg': websocket.BadRequest('Please send with major')}, namespace='/chat')
+
+        return fn(json)
+    return wrapper
+
+
+def chat_message_required(fn):
+    @wraps(fn)
+    def wrapper(json):
+        json['msg'] = json.get('args').get('msg')
+        if json['msg'] is None:
+            return emit('error', {'msg': websocket.BadRequest('Please send with message')}, namespace='/chat')
+
+        return fn(json)
+    return wrapper
+
+
+def schedule_required(fn):
+    @wraps(fn)
+    def wrapper(json):
+        
         return fn(json)
     return wrapper
