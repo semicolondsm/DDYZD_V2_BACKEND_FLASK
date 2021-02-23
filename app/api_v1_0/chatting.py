@@ -1,6 +1,5 @@
-from app.decorator import clubhead_required
 from app.decorator import room_token_required
-from app.models import User, Room, ClubHead, Club, Chat
+from app.models import User, Room, ClubHead, Club, Chat, Application
 from app.errors import http
 from app.errors import websocket
 from app import db
@@ -20,16 +19,17 @@ import jwt
 
 # 채팅들 리스트 반환
 @jwt_required()
-@clubhead_required
 def chat_list():
     user = User.query.get_or_404(get_jwt_identity())
-    # 유저 권한의 채팅방 검색
     index = 0
     rooms = []
+    # 채팅 섹션
     club_section = [user.name] 
     for club in user.get_clubs():
         club_section.append(club.club_name)
-    for r in user.rooms:    
+
+    # 유저 권한의 채팅방 검색
+    for r in user.rooms.all():    
         rooms.append(r.json(is_user=True, index=index))
 
     # 동아리장 권한의 채팅방 검색
@@ -79,6 +79,20 @@ def room_token(room_id):
         return http.BadRequest("You are not a member for the room: "+str(room.id))
     return {'room_token': token}, 200
 
+
+# 지원자 리스트 반환
+@jwt_required()
+def applicant_list(club_id):
+    user = User.query.get_or_404(get_jwt_identity())
+    club = Club.query.get_or_404(club_id)
+    if not user.is_member(club=club):
+        return http.Forbidden('You do not have any permission!')
+    
+    rooms = []
+    for r in club.get_all_applicant_room():
+        rooms.append(r.json(is_user=False, index=0))
+
+    return json.dumps(rooms), 200 
 
 # 소켓 연결
 def connect():
