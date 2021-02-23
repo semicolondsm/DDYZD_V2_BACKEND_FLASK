@@ -1,6 +1,7 @@
+from app.decorator import schedule_information_required
 from app.decorator import apply_message_required
 from app.decorator import room_token_required
-from app.models import User, Club, Major, Application
+from app.models import User, Club, Major, Application, Chat
 from app.errors import websocket
 from app import logger
 from app import db
@@ -15,15 +16,13 @@ def get_apply_message(user, club, major):
     msg = '{gcn} {name}님이 {club}에 {major}분야로 지원하셨습니다.'\
         .format(gcn=user.gcn, name=user.name, club=club.club_name, major=major.major_name)
     
-    return {'title': title, 'msg': msg}
+    return title, msg
 
 
 # 동아리 지원
 @room_token_required
 @apply_message_required
 def helper_apply(json):
-    if json.get('user_type') != 'U':
-        return emit('error', BadRequest("Only user can do this!"))
     user = User.query.get(json.get('user_id'))
     club = Club.query.get(json.get('club_id'))
     major = Major.query.filter_by(club_id=json.get('club_id'), major_name=json.get('major')).first()
@@ -41,15 +40,19 @@ def helper_apply(json):
     if major is None:
         return emit('error', {'msg': websocket.BadRequest('Club does not need '+str(json.get('major')))}, namespace='/chat')
     
+    title, msg = get_apply_message(user=user, club=club, major=major)
     db.session.add(Application(club_id=json.get('club_id'), user_id=json.get('user_id'), result=False))
+    db.session.add(Chat(room_id=json.get('room_id'), title, msg=msg, user_type='H'))
     db.session.commit()
     
-    logger.info('[Helper Apply]'+str(get_apply_message(user=user, club=club, major=major)))
-    emit('response', get_apply_message(user=user, club=club, major=major), room=json.get('room_id'))
+    logger.info('[Helper Apply] - '+ msg)
+    emit('response', {'title': title, 'msg': msg}}, room=json.get('room_id'))
 
 
+@room_token_required
+@schedule_information_required
 def helper_schedule(json):
-    pass
+    
 
 
 def helper_result(json):

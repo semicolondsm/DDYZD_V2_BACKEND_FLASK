@@ -52,12 +52,14 @@ class Chat(db.Model):
     __tablename__ = 'chat'
     id = db.Column(db.Integer, primary_key=True)
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
+    title = db.Column(db.String(512))
     msg = db.Column(db.String(512))
     created_at = db.Column(db.DateTime(),  default=datetime.now)
     user_type = db.Column(db.Enum(ChatEnum))
 
     def json(self):
         return {
+            'title': self.title,
             "msg": self.msg,
             "user_type": self.user_type.name,
             "created_at": isoformat(self.created_at)
