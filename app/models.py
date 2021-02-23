@@ -1,5 +1,5 @@
 import enum
-import datetime
+from datetime import datetime
 from app import db
 
 class ChatEnum(enum.Enum):
@@ -53,7 +53,7 @@ class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
     msg = db.Column(db.String(512))
-    created_at = db.Column(db.DateTime(),  default=datetime.datetime.now)
+    created_at = db.Column(db.DateTime(),  default=datetime.now)
     user_type = db.Column(db.Enum(ChatEnum))
 
     def json(self):
@@ -93,6 +93,12 @@ class Club(db.Model):
         return Room.query.join(User, Room.user_id==User.user_id).join(Application, User.user_id==Application.user_id).filter_by(club_id=self.club_id, result=False).all()
 
     def is_recruiting(self):
+        '''
+        모집 기간인지 확인하는 메서드
+        처음 100번째줄 if 문 코드는 공고한적 없는 동아리의 경우 False를 반환한다.
+        '''
+        if self.start_at == None or self.close_at == None:
+            return False
         return datetime.now() >= self.start_at and datetime.now() <= self.close_at 
 
     def __repr__(self):
@@ -145,6 +151,7 @@ class User(db.Model):
         '''
         내가 채팅방 혹은 동아리의 동아리장인지 확인하는 메서드
         '''
+        club_head = None
         if room is not None:
             club_head = ClubHead.query.filter_by(user_id=self.user_id, club_id=room.club_id).first()
         if club is not None:
