@@ -36,8 +36,8 @@ class Room(db.Model):
             name = user.name
             image = user.image_path
         return {
-		    "roomid" : self.id,
-		    "id" : id,
+		    "roomid" : str(self.id),
+		    "id" : str(id),
 		    "name" : name,
 		    "image" : image,
 		    "lastdate" : created_at,
