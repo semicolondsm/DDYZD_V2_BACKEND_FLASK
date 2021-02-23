@@ -16,6 +16,7 @@ api_v1_0.add_url_rule('/chat/list', 'chat_list', chat_list, methods=['GET'])
 api_v1_0.add_url_rule('/chat/<int:club_id>/room', 'make_room', make_room, methods=['POST'])
 api_v1_0.add_url_rule('/chat/<int:room_id>/breakdown', 'breakdown', breakdown, methods=['GET'])
 api_v1_0.add_url_rule('/room/<int:room_id>/token', 'room_token', room_token, methods=['GET'])
+api_v1_0.add_url_rule('/club/<int:club_id>/applicant', 'applicant_list', applicant_list, methods=['GET'])
 
 # chathelper event
 flask_websocket.on_event('helper_apply', helper_apply, namespace='/chat')

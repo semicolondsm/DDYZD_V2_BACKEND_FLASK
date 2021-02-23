@@ -63,10 +63,14 @@ def flask_websocket(flask_app, flask_client):
 def db_setting():
     db.session.add(User(name='김수완', gcn='1103', image_path='profile1'))
     db.session.add(User(name='조호원', gcn='1118', image_path='profile2'))
+    db.session.add(User(name='안은결', gcn='1413', image_path='profile3'))
     db.session.add(Club(club_name='세미콜론', total_budget=3000, current_budget=2000, banner_image='banner image', hongbo_image='hongbo image', profile_image='profile_image'))
     db.session.add(ClubHead(user_id=1, club_id=1))
     db.session.add(Room(user_id=2, club_id=1))
+    db.session.add(Room(user_id=3, club_id=1))
     db.session.add(Chat(room_id=1, msg='첫번째 채팅', user_type='U'))
     db.session.add(Chat(room_id=1, msg='두번째 채팅', user_type='C'))
+    db.session.add(Application(user_id=2, club_id=1, result=False))
+    db.session.add(Application(user_id=3, club_id=1, result=False))
 
     db.session.commit()

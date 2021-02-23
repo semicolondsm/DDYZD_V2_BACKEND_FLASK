@@ -66,7 +66,7 @@ def test_make_room(flask_client, db_setting):
     assert resp.status_code == 200
     data = resp.json
 
-    assert data.get('room_id') == 2
+    assert data.get('room_id') == 3
     
 
 ## 채팅 내역 불러오기 테스트 ##
@@ -105,6 +105,27 @@ def test_room_token(flask_client, db_setting):
     assert json.get('room_id') == 1
     assert json.get('user_id') == 2
     assert json.get('user_type') == 'U' 
+
+## 지원자 리스트 반환 테스트 ##
+def test_applicant_list(flask_client, db_setting):
+    resp = flask_client.get('/club/1/applicant', headers=jwt_token(1))
+    assert resp.status_code == 200
+    data = resp.data.decode('utf8').replace("'", '"')
+    data = json.loads(data)
+
+    assert data[0]['roomid'] == 1
+    assert data[0]['id'] == 2
+    assert data[0]['name'] == '조호원'
+    assert data[0]['image'] == 'profile2'
+    assert data[0]['lastdate'] != None
+    assert data[0]['lastmessage'] == '두번째 채팅'
+    assert data[0]['index'] == 0
+    assert data[1]['roomid'] == 2
+    assert data[1]['id'] == 3
+    assert data[1]['image'] == 'profile3'
+    assert data[1]['lastdate'] == None
+    assert data[1]['lastmessage'] == None
+    assert data[1]['index'] == 0
 
 
 ## 방 들어가기 테스트 (채팅 보내기 전에 먼저 실행하자)## 
