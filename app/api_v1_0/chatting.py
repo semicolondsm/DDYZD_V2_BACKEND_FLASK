@@ -57,9 +57,9 @@ def make_room(club_id):
 # 채팅 내역 보기
 @jwt_required()
 def breakdown(room_id):
-    cs = Chat.query.filter_by(room_id = room_id).order_by(Chat.created_at.desc()).all()
+    r = Room.query.get_or_404(room_id)
     chats = []
-    for c in cs:
+    for c in r.chats.order_by(Chat.created_at.desc()).all():
         chats.append(c.json())
 
     return json.dumps(chats, ensure_ascii=False).encode('utf8'), 200
