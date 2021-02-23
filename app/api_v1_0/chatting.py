@@ -51,7 +51,7 @@ def make_room(club_id):
         db.session.add(room)
         db.session.commit()
 
-    return {'room_id': room.id}, 200
+    return {'room_id': str(room.id)}, 200
 
 
 # 채팅 내역 보기
@@ -95,6 +95,7 @@ def applicant_list(club_id):
 
     return json.dumps(rooms), 200 
 
+
 # 소켓 연결
 def connect():
     logger.info('[Socket Connect Successfully] - '+str(request.headers).strip('').replace('\n', ' '))
@@ -114,7 +115,7 @@ def event_join_room(json):
 @chat_message_required
 def event_send_chat(json):
     logger.info('JSON: '+str(json))
-    emit('recv_chat', {'msg': json.get('msg')}, room=json.get('room_id'))
+    emit('recv_chat', {'msg': json.get('msg'), 'user_type': json.get('user_type')}, room=json.get('room_id'))
     logger.info('[Send Chat] - '+str(request.headers).strip('').replace('\n', ' '))
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    
