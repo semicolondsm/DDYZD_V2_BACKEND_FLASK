@@ -12,8 +12,8 @@ from flask_socketio import emit
 
 
 def get_apply_message(user, club, major):
-    title= '{name}님이 지원하셨습니다.'.format(name=user.name) 
-    msg = '{gcn} {name}님이 {club}에 {major}분야로 지원하셨습니다.'\
+    title= '{name}님이 동아리에 지원하셨습니다.'.format(name=user.name) 
+    msg = '{gcn} {name}님이 {club}에 {major} 분야로 지원하셨습니다.'\
         .format(gcn=user.gcn, name=user.name, club=club.club_name, major=major.major_name)
     
     return title, msg
@@ -41,10 +41,10 @@ def helper_apply(json):
         return emit('error', {'msg': websocket.BadRequest('Club does not need '+str(json.get('major')))}, namespace='/chat')
     
     title, msg = get_apply_message(user=user, club=club, major=major)
-    emit('recv_chat', {'title': title, 'msg': msg}, room=json.get('room_id'))
+    emit('recv_chat', {'title': title, 'msg': msg, 'user_type': 'H1'}, room=json.get('room_id'))
     
     db.session.add(Application(club_id=json.get('club_id'), user_id=json.get('user_id'), result=False))
-    db.session.add(Chat(room_id=json.get('room_id'), title=title, msg=msg, user_type='H'))
+    db.session.add(Chat(room_id=json.get('room_id'), title=title, msg=msg, user_type='H1'))
     db.session.commit()
     
     logger.info('[Helper Apply] - '+ msg)
@@ -57,7 +57,6 @@ def helper_schedule(json):
 
 def helper_result(json):
     pass
-
 
 def helper_answer(json):
     pass
