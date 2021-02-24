@@ -49,8 +49,9 @@ def chat_list():
             club_section.append(club.club_name)
 
         # 유저 권한의 채팅방 검색
-
-        for r in user.rooms.all().sort(reverse=True):    
+        
+        rs = user.rooms.all().sort(reverse=True)
+        for r in rs:
             rooms.append(r.json(is_user=True, index=index))
 
         # 동아리장 권한의 채팅방 검색
