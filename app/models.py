@@ -29,15 +29,17 @@ class Room(db.Model):
 
     def read(self, user_type):
         if user_type == 'C':
-            self.user_looked = True
-        else:
             self.club_looked = True
+        else:
+            self.user_looked = True
+        db.session.commit()
             
     def writed(self, user_type):
         if user_type == 'C':
-            self.user_looked = False
-        else:
             self.club_looked = False
+        else:
+            self.user_looked = False
+        db.session.commit()
 
     def last_message(self):
         chat = self.chats.order_by(Chat.created_at.desc()).first()
@@ -59,6 +61,7 @@ class Room(db.Model):
             name = user.name
             image = user.image_path
             isread = self.club_looked
+
         return {
 		    "roomid" : str(self.id),
 		    "id" : str(id),
