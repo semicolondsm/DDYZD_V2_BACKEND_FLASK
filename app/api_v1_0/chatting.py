@@ -157,7 +157,7 @@ def event_send_chat(json):
     emit('alarm', {'room_id': json.get('room_id')}, namespace='/chat')
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    
-    logger.info('[Send Chat]')
+    logger.info('[Send Chat] - [{msg}]'.format(json.get('msg')))
 
 
 # 방 나가기
