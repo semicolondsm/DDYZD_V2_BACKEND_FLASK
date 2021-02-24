@@ -3,6 +3,7 @@ from app.errors import http
 from app.models import ClubHead 
 from app.models import Room
 from app.models import User
+from app.models import Club
 from app import logger
 from config import Config
 from flask_jwt_extended import jwt_required
@@ -61,3 +62,27 @@ def schedule_information_required(fn):
             
         return fn(json)
     return wrapper
+
+
+def room_member_required(fn):
+    @wraps(fn)
+    def wrapper(room_id):
+        room = Room.query.get_or_404(room_id)
+        user = User.query.get_or_404(get_jwt_identity())
+        if not user.is_member(room=room):
+            return http.BadRequest("You are not a member for the room: "+str(room.id))
+        
+        return fn(user, room)
+    return wrapper
+
+
+def club_member_required(fn):
+    @wraps(fn)
+    def wrapper(club_id):
+        club = Club.query.get_or_404(club_id)
+        user = User.query.get_or_404(get_jwt_identity())
+        if not user.is_member(club=club):
+            return http.BadRequest("You are not a member for the room: "+str(room.id))
+        
+        return fn(user, club)
+    return wrapper   
