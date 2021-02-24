@@ -49,13 +49,14 @@ def chat_list():
             club_section.append(club.club_name)
 
         # 유저 권한의 채팅방 검색
-        for r in user.rooms.all():    
+
+        for r in user.rooms.all().sort(reverse=True):    
             rooms.append(r.json(is_user=True, index=index))
 
         # 동아리장 권한의 채팅방 검색
         for c in user.get_clubs():
             index = index + 1
-            for r in c.rooms:
+            for r in c.rooms.all().sort(reverse=True):
                 rooms.append(r.json(is_user=False, index=index))
 
         return {"club_section": club_section, "rooms": rooms}, 200
@@ -148,7 +149,7 @@ def event_join_room(json):
 @room_token_required
 @chat_message_required
 def event_send_chat(json):
-    emit('recv_chat', {'title': None,'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': datetime.now().isoformat()}, room=json.get('room_id'))
+    emit('recv_chat', {'title': None,'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': datetime.utcnow().isoformat()}, room=json.get('room_id'))
     emit('alarm', {'room_id': json.get('room_id')}, namespace='/chat')
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    

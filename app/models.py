@@ -19,10 +19,13 @@ class Room(db.Model):
 
     chats = db.relationship('Chat', backref='room', lazy='dynamic')
 
+    def __lt__(self, operand):
+        return self.last_message()[1] < operand.last_message()[1]
+
     def last_message(self):
         chat = self.chats.order_by(Chat.created_at.desc()).first()
         msg = chat.msg if chat is not None else None
-        created_at = isoformat(chat.created_at) if chat is not None else None
+        created_at = chat.created_at if chat is not None else None
         return msg, created_at 
 
     def json(self, is_user, index=0):
@@ -42,7 +45,7 @@ class Room(db.Model):
 		    "id" : str(id),
 		    "name" : name,
 		    "image" : image,
-		    "lastdate" : created_at,
+		    "lastdate" :  isoformat(created_at),
 		    "lastmessage" : msg,
             "index": index
         }
@@ -56,7 +59,7 @@ class Chat(db.Model):
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
     title = db.Column(db.String(512))
     msg = db.Column(db.String(512))
-    created_at = db.Column(db.DateTime(),  default=datetime.now)
+    created_at = db.Column(db.DateTime(),  default=datetime.utcnow)
     user_type = db.Column(db.Enum(ChatEnum))
 
     def json(self):
