@@ -1,4 +1,10 @@
-from app.models import Room, Chat, Club, ClubHead, User, Application, Major
+from app.models import Application
+from app.models import ClubHead
+from app.models import Major
+from app.models import Room 
+from app.models import Chat 
+from app.models import Club
+from app.models import User
 from app import create_app
 from app import websocket
 from app import db

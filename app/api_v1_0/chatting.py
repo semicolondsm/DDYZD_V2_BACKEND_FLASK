@@ -2,9 +2,14 @@ from app.decorator import room_token_required
 from app.decorator import chat_message_required
 from app.decorator import room_member_required
 from app.decorator import club_member_required
-from app.models import User, Room, ClubHead, Club, Chat, Application
-from app.errors import http
 from app.errors import websocket
+from app.errors import http
+from app.models import Application
+from app.models import ClubHead
+from app.models import Club
+from app.models import Chat
+from app.models import User
+from app.models import Room 
 from app import db
 from app import logger
 from config import Config

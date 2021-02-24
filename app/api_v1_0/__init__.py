@@ -1,5 +1,5 @@
-from flask import Blueprint
 from app import websocket as flask_websocket
+from flask import Blueprint
 
 api_v1_0 = Blueprint('apiv1.0', __name__)
 
