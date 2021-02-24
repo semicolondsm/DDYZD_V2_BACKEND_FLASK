@@ -27,6 +27,18 @@ class Room(db.Model):
             boolean = False
         return boolean
 
+    def read(self, user_type):
+        if user_type == 'C':
+            self.user_looked = True
+        else:
+            self.club_looked = True
+            
+    def writed(self, user_type):
+        if user_type == 'C':
+            self.user_looked = False
+        else:
+            self.club_looked = False
+
     def last_message(self):
         chat = self.chats.order_by(Chat.created_at.desc()).first()
         msg = chat.msg if chat is not None else None
@@ -40,11 +52,13 @@ class Room(db.Model):
             id = club.club_id
             name = club.club_name
             image = 'https://api.semicolon.live/file/'+club.profile_image
+            isread = self.user_looked
         else:
             user = User.query.get(self.user_id)
             id = user.user_id
             name = user.name
             image = user.image_path
+            isread = self.club_looked
         return {
 		    "roomid" : str(self.id),
 		    "id" : str(id),
@@ -52,6 +66,7 @@ class Room(db.Model):
 		    "image" : image,
 		    "lastdate" :  isoformat(created_at),
 		    "lastmessage" : msg,
+            "isread": isread,
             "index": index
         }
 
