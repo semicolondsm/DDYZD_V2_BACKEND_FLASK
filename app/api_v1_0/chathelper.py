@@ -80,7 +80,6 @@ def helper_schedule(json):
     user = Room.query.get(json.get('room_id')).user
     club = Club.query.get(json.get('club_id'))    
  
-    logger.info(str(json))
     # 동아리 장이 아닌 사람이 호출한 경우
     if json.get('user_type') != 'C':
         return emit('error', websocket.BadRequest('Only club head use this helper'), namespace='/chat') 
