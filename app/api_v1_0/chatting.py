@@ -50,14 +50,17 @@ def chat_list():
 
         # 유저 권한의 채팅방 검색
         
-        rs = user.rooms.all().sort(reverse=True)
+        rs = user.rooms.all()
+        rs.sort(reverse=True)
         for r in rs:
             rooms.append(r.json(is_user=True, index=index))
 
         # 동아리장 권한의 채팅방 검색
         for c in user.get_clubs():
             index = index + 1
-            for r in c.rooms.all().sort(reverse=True):
+            rs = c.rooms.all()
+            rs.sort(reverse=True)
+            for r in rs:
                 rooms.append(r.json(is_user=False, index=index))
 
         return {"club_section": club_section, "rooms": rooms}, 200
