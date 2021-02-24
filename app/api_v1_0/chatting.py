@@ -32,6 +32,7 @@ def chat_list():
             return http.BadRequest('You do not have permission')
         for r in club.rooms:
             rooms.append(r.json(is_user=False, index=index))
+
         return {"club_section": club.club_name, "rooms": rooms}, 200
     else:
         # 채팅 섹션
@@ -112,7 +113,7 @@ def applicant_list(club_id):
     user = User.query.get_or_404(get_jwt_identity())
     club = Club.query.get_or_404(club_id)
     if not user.is_member(club=club):
-        return http.Forbidden('You do not have any permission!')
+            return http.Forbidden('You do not have any permission!')
     
     rooms = []
     for r in club.get_all_applicant_room():
@@ -124,7 +125,7 @@ def applicant_list(club_id):
 # 소켓 연결
 def connect():
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
-    logger.info('[Socket Connect Successfully] - '+str(request.headers).strip('').replace('\n', ' '))
+    logger.info('[Socket Connect Successfully]')
 
 
 # 방 입장
@@ -132,7 +133,7 @@ def connect():
 def event_join_room(json):
     join_room(json.get('room_id'))
     emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
-    logger.info('[Join Room] - '+str(request.headers).strip('').replace('\n', ' '))
+    logger.info('[Join Room]')
 
 
 # 채팅 보내기
@@ -140,10 +141,9 @@ def event_join_room(json):
 @chat_message_required
 def event_send_chat(json):
     emit('recv_chat', {'msg': json.get('msg'), 'user_type': json.get('user_type')}, room=json.get('room_id'))
-    logger.info('[Send Chat] - '+str(request.headers).strip('').replace('\n', ' '))
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    
-    logger.info('JSON: '+str(json))
+    logger.info('[Send Chat]')
 
 
 # 방 나가기
@@ -151,7 +151,7 @@ def event_send_chat(json):
 def event_leave_room(json):
     leave_room(json.get('room_id'))
     emit('response', {'msg': 'Leave Room Success'}, namespace='/chat')
-    logger.info('[Leave Room] - '+str(request.headers).strip('').replace('\n', ' '))
+    logger.info('[Leave Room]')
 
 
 # 소켓 연결 끊기
