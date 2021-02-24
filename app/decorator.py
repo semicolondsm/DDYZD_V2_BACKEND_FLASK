@@ -23,7 +23,7 @@ def room_token_required(fn):
         except jwt.ExpiredSignatureError as e:
             return emit('error', websocket.Unauthorized('ExpiredSignatureError'), namespace='/chat')
         except Exception as e:
-            return emit('error', websocket.Forbidden(), namespace='/chat')
+            return emit('error', websocket.Unauthorized(), namespace='/chat')
         json['args'] = args[0]
         
         return fn(json)
