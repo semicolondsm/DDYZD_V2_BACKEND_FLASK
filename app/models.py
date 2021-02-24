@@ -91,7 +91,11 @@ class Club(db.Model):
     majors = db.relationship('Major', backref='club')
 
     def __lt__(self, operand):
-        return self.club_name < operand.club_name
+        try:
+            boolean = self.club_name < operand.club_name
+        except:
+            boolean = False
+        return 
 
     def get_all_applicant_room(self):
         '''
