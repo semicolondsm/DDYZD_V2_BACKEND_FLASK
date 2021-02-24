@@ -16,7 +16,24 @@ def test_ping(flask_websocket):
 
 
 ## 채팅 리스트 불러오기 테스트 ## 
-def test_chat_list(flask_client, db_setting):
+def test_chat_list(flask_websocket, flask_client, db_setting):
+    # 동아리장 채팅 테스트
+    flask_websocket.emit('join_room', {'room_token': room_token()}, namespace='/chat')
+    resp = flask_client.get("/chat/list", headers=jwt_token(1))
+    assert resp.status_code == 200
+    data = resp.data.decode('utf8').replace("'", '"')
+    data = json.loads(data)
+
+    assert data['club_section'] == ['김수완', '세미콜론']
+    assert data['rooms'][0].get('roomid') == '1'
+    assert data['rooms'][0].get('id') == '2'
+    assert data['rooms'][0].get('name') == '조호원'
+    assert data['rooms'][0].get('image') == 'profile2'
+    assert data['rooms'][0].get('lastdate') != None
+    assert data['rooms'][0].get('isread') == True
+    assert data['rooms'][0].get('index') == 1
+    logger.info("CHATLIST END")
+
     # 일반 채팅 테스트
     resp = flask_client.get("/chat/list", headers=jwt_token(2))
     assert resp.status_code == 200
@@ -30,22 +47,8 @@ def test_chat_list(flask_client, db_setting):
     assert data['rooms'][0].get('image') == 'https://api.semicolon.live/file/profile_image'
     assert data['rooms'][0].get('lastmessage') == '두번째 채팅'
     assert data['rooms'][0].get('lastdate') != None
+    assert data['rooms'][0].get('isread') == False
     assert data['rooms'][0].get('index') == 0
-
-
-    # 동아리장 채팅 테스트
-    resp = flask_client.get("/chat/list", headers=jwt_token(1))
-    assert resp.status_code == 200
-    data = resp.data.decode('utf8').replace("'", '"')
-    data = json.loads(data)
-
-    assert data['club_section'] == ['김수완', '세미콜론']
-    assert data['rooms'][0].get('roomid') == '1'
-    assert data['rooms'][0].get('id') == '2'
-    assert data['rooms'][0].get('name') == '조호원'
-    assert data['rooms'][0].get('image') == 'profile2'
-    assert data['rooms'][0].get('lastdate') != None
-    assert data['rooms'][0].get('index') == 1
 
 
 ## 방 만들기 테스트 ##
@@ -178,13 +181,13 @@ def test_join_room(flask_websocket, db_setting):
 ## 채팅 보내기 테스트 ## 
 def test_send_chat(flask_websocket, db_setting):
     # 동아리장 채팅
-    flask_websocket.emit('send_chat',{'msg': 'Hello', 'room_token': room_token()}, namespace='/chat')
+    flask_websocket.emit('send_chat',{'msg': 'Hello \U0001f600', 'room_token': room_token()}, namespace='/chat')
     recv = flask_websocket.get_received(namespace='/chat')[0]
 
     assert recv['name'] != 'error'
-    assert recv['args'][0]['msg'] == 'Hello'
+    assert recv['args'][0]['msg'] == 'Hello \U0001f600'
     assert recv['args'][0]['user_type'] == 'C'
-
+    assert recv['args'][0]['date'] != None
     # 동아리원 채팅
     flask_websocket.emit('send_chat', {'msg': 'World!', 'room_token': room_token(user_id=2, user_type='U')}, namespace='/chat')
     recv = flask_websocket.get_received(namespace='/chat')[0]

@@ -65,7 +65,7 @@ def flask_websocket(flask_app, flask_client):
 
 
 ## 더미 데이터 세팅 ## 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def db_setting():
     db.session.add(User(name='김수완', gcn='1103', image_path='profile1'))
     db.session.add(User(name='조호원', gcn='1118', image_path='profile2'))
