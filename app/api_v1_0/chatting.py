@@ -1,5 +1,7 @@
 from app.decorator import room_token_required
 from app.decorator import chat_message_required
+from app.decorator import room_member_required
+from app.decorator import club_member_required
 from app.models import User, Room, ClubHead, Club, Chat, Application
 from app.errors import http
 from app.errors import websocket
@@ -61,19 +63,14 @@ def make_room(club_id):
         room = Room(user_id=get_jwt_identity(), club_id=club_id)
         db.session.add(room)
         db.session.commit()
-    if not room.is_member(User.query.get_or_404(get_jwt_identity())):
-        return http.BadRequest('You do not have permission this room')
 
     return {'room_id': str(room.id), }, 200
 
 
 # 채팅방 정보
 @jwt_required()
-def room_info(room_id):
-    room = Room.query.get_or_404(room_id)
-    user = User.query.get_or_404(get_jwt_identity())
-    if not room.is_member(user):
-        return http.BadRequest('You do not have permission this room')
+@room_member_required
+def room_info(user, room):
     if user.is_user(room):
         return {'id': str(room.club.club_id), 'name': room.club.club_name,'image': 'https://api.semicolon.live/file/'+room.club.profile_image}
     else:
@@ -82,10 +79,10 @@ def room_info(room_id):
 
 # 채팅 내역 보기
 @jwt_required()
-def breakdown(room_id):
-    r = Room.query.get_or_404(room_id)
+@room_member_required
+def breakdown(user, room):
     chats = []
-    for c in r.chats.order_by(Chat.created_at.desc()).all():
+    for c in room.chats.order_by(Chat.created_at.desc()).all():
         chats.append(c.json())
 
     return json.dumps(chats, ensure_ascii=False).encode('utf8'), 200
@@ -93,31 +90,36 @@ def breakdown(room_id):
 
 # 룸 토큰 반환
 @jwt_required()
-def room_token(room_id):
-    room = Room.query.get_or_404(room_id)
-    user = User.query.get_or_404(get_jwt_identity()) 
+@room_member_required
+def room_token(user, room):
     if user.is_user(room=room):
         token = jwt.encode({"room_id": room.id, 'user_id': get_jwt_identity(), "user_type": 'U', \
             'club_id': room.club_id ,"exp": datetime.utcnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
     elif user.is_clubhead(room=room):
         token = jwt.encode({"room_id": room.id, 'user_id': get_jwt_identity(), "user_type": 'C', \
             'club_id': room.club_id, "exp": datetime.utcnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
-    else:
-        return http.BadRequest("You are not a member for the room: "+str(room.id))
+    
     return {'room_token': token}, 200
+
+
+# 채팅방 리프레시
+@jwt_required()
+@room_member_required
+def room_refresh(user, room):
+    if user.is_user(room):
+        is_user=True
+    else:
+        is_user=False
+    return room.json(is_user=is_user), 200
 
 
 # 지원자 리스트 반환
 @jwt_required()
-def applicant_list(club_id):
-    user = User.query.get_or_404(get_jwt_identity())
-    club = Club.query.get_or_404(club_id)
-    if not user.is_member(club=club):
-            return http.Forbidden('You do not have any permission!')
-    
+@club_member_required
+def applicant_list(user, club):
     rooms = []
     for r in club.get_all_applicant_room():
-        rooms.append(r.json(is_user=False, index=0))
+        rooms.append(r.json(is_user=False))
 
     return json.dumps(rooms), 200 
 
@@ -141,6 +143,7 @@ def event_join_room(json):
 @chat_message_required
 def event_send_chat(json):
     emit('recv_chat', {'msg': json.get('msg'), 'user_type': json.get('user_type')}, room=json.get('room_id'))
+    emit('alarm', {'room_id': json.get('room_id')}, namespace='/chat')
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    
     logger.info('[Send Chat]')
