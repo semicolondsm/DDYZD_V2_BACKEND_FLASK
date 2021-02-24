@@ -9,7 +9,8 @@ from app.models import ClubHead
 from app.models import Club
 from app.models import Chat
 from app.models import User
-from app.models import Room 
+from app.models import Room
+from app.models import isoformat 
 from app import db
 from app import logger
 from config import Config
@@ -147,7 +148,7 @@ def event_join_room(json):
 @room_token_required
 @chat_message_required
 def event_send_chat(json):
-    emit('recv_chat', {'msg': json.get('msg'), 'user_type': json.get('user_type')}, room=json.get('room_id'))
+    emit('recv_chat', {'title': None,'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': datetime.now().isoformat()}, room=json.get('room_id'))
     emit('alarm', {'room_id': json.get('room_id')}, namespace='/chat')
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    
