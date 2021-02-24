@@ -1,6 +1,7 @@
-import enum
-from datetime import datetime
 from app import db
+from datetime import datetime
+from pytz import timezone
+import enum
 
 class ChatEnum(enum.Enum):
     U = 1  # 유저
@@ -63,7 +64,7 @@ class Chat(db.Model):
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
     title = db.Column(db.String(512))
     msg = db.Column(db.String(512))
-    created_at = db.Column(db.DateTime(),  default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(),  default=datetime.now(timezone('Asia/Seoul')))
     user_type = db.Column(db.Enum(ChatEnum))
 
     def json(self):
