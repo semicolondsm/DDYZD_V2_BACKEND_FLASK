@@ -7,7 +7,6 @@ import json
 import jwt
 import pytest
 
-
 ## 테스트 핑 ## 
 def test_ping(flask_websocket):
     resp = flask_websocket.flask_test_client.get("ping")
@@ -29,6 +28,7 @@ def test_chat_list(flask_client, db_setting):
     assert data['rooms'][0].get('id') == '1'
     assert data['rooms'][0].get('name') == '세미콜론'
     assert data['rooms'][0].get('image') == 'https://api.semicolon.live/file/profile_image'
+    assert data['rooms'][0].get('lastmessage') == '두번째 채팅'
     assert data['rooms'][0].get('lastdate') != None
     assert data['rooms'][0].get('index') == 0
 

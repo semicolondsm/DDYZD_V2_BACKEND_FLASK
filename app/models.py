@@ -1,6 +1,6 @@
 from app import db
 from datetime import datetime
-from pytz import timezone
+from datetime import timedelta
 import enum
 
 class ChatEnum(enum.Enum):
@@ -64,7 +64,7 @@ class Chat(db.Model):
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
     title = db.Column(db.String(512))
     msg = db.Column(db.String(512))
-    created_at = db.Column(db.DateTime(6),  default=datetime.now(timezone('Asia/Seoul')))
+    created_at = db.Column(db.DateTime(6),  default=datetime.now)
     user_type = db.Column(db.Enum(ChatEnum))
 
     def json(self):
@@ -115,7 +115,7 @@ class Club(db.Model):
         '''
         if self.start_at == None or self.close_at == None:
             return False
-        return datetime.now(timezone('Asia/Seoul')) >= self.start_at and datetime.now(timezone('Asia/Seoul')) <= self.close_at 
+        return datetime.now() >= self.start_at and datetime.now() <= self.close_at 
 
     def __repr__(self):
         return '<Club> {}>'.format(self.club_name)
@@ -220,7 +220,7 @@ class Major(db.Model):
 
 def isoformat(date):
     try:
-        date = date.isoformat(timespec="milliseconds")
-    except AttributeError:
+        date = date = date.isoformat()[:-7]+'.000+09:00'
+    except:
         date = None
     return date

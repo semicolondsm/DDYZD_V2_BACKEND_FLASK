@@ -26,7 +26,7 @@ def jwt_token(sub=1):
 
 def room_token(user_id=1, room_id=1, club_id=1, user_type='C'):
     token = jwt.encode({"room_id": room_id, 'user_id': user_id, "user_type": user_type, \
-        "exp": datetime.utcnow()+timedelta(days=1), 'club_id': club_id}, Config.ROOM_SECRET_KEY, algorithm="HS256")
+        "exp": datetime.now()+timedelta(days=1), 'club_id': club_id}, Config.ROOM_SECRET_KEY, algorithm="HS256")
     return token
 
 
@@ -78,5 +78,5 @@ def db_setting():
     db.session.add(Chat(room_id=1, msg='두번째 채팅', user_type='C'))
     db.session.add(Major(club_id=1, major_name='프론트엔드'))
     db.session.add(Application(user_id=2, club_id=1, result=False))
-
+    
     db.session.commit()
