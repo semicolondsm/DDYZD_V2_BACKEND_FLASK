@@ -75,9 +75,9 @@ def room_info(room_id):
     if not room.is_member(user):
         return http.BadRequest('You do not have permission this room')
     if user.is_user(room):
-        return {'id': str(room.user.gcn), 'name': room.user.name, 'image': room.user.image_path}
-    else:
         return {'id': str(room.club.club_id), 'name': room.club.club_name,'image': 'https://api.semicolon.live/file/'+room.club.profile_image}
+    else:
+        return {'id': str(room.user.gcn), 'name': room.user.name, 'image': room.user.image_path}
 
 
 # 채팅 내역 보기
