@@ -12,6 +12,17 @@ class ChatEnum(enum.Enum):
     H3 = 5 # 면접 결과
 
 
+def isoformat(date):
+    try:
+        date = date = date.isoformat()[:-7]+'.000+09:00'
+    except:
+        date = None
+    return date
+
+
+def kstnow():
+    return datetime.utcnow()+timedelta(hours=9)
+
 class Room(db.Model):
     __tablename__ = 'room'
     id = db.Column(db.Integer, primary_key=True)
@@ -241,14 +252,3 @@ class Major(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     club_id = db.Column(db.Integer, db.ForeignKey("club.club_id"))
     major_name = db.Column(db.String(45))
-
-
-def isoformat(date):
-    try:
-        date = date = date.isoformat()[:-7]+'.000+09:00'
-    except:
-        date = None
-    return date
-
-def kstnow():
-    return datetime.utcnow()+timedelta(hours=9)

@@ -13,6 +13,7 @@ from app.models import Chat
 from app.models import User
 from app.models import Room
 from app.models import isoformat 
+from app.models import kstnow
 from app import db
 from app import logger
 from config import Config
@@ -24,7 +25,6 @@ from flask_socketio import leave_room
 from flask_socketio import join_room
 from flask_socketio import emit
 from flask import request
-from models import kstnow
 import json
 import jwt
 
