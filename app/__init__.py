@@ -1,8 +1,9 @@
-from flask import Flask
+from config import configs
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
-from config import configs
 from flask_socketio import SocketIO
+from flask_cors import CORS
+from flask import Flask
 import logging
 
 logger = logging.getLogger()
@@ -20,7 +21,8 @@ jwt = JWTManager()
 def create_app(config):
     app = Flask(__name__)
     app.config.from_object(configs[config])
-
+    
+    CORS(app)
     db.init_app(app)
     jwt.init_app(app)
     
