@@ -130,6 +130,7 @@ def test_room_info(flask_client, db_setting):
     data = resp.json
 
     assert data['id'] == '1'
+    assert data['name'] == '세미콜론'
     assert data['image'] == 'https://api.semicolon.live/file/profile_image'
     
     resp = flask_client.get('/room/1/info', headers=jwt_token(2))
@@ -137,6 +138,7 @@ def test_room_info(flask_client, db_setting):
     data = resp.json
 
     assert data['id'] == '1118'
+    assert data['name'] == '조호원'
     assert data['image'] == 'profile2'
     
 

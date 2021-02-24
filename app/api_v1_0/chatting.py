@@ -64,9 +64,9 @@ def room_info(room_id):
     if not room.is_member(user):
         return http.BadRequest('You do not have permission this room')
     if user.is_user(room):
-        return {'id': str(room.user.gcn), 'image': room.user.image_path}
+        return {'id': str(room.user.gcn), 'name': room.user.name, 'image': room.user.image_path}
     else:
-        return {'id': str(room.club.club_id), 'image': 'https://api.semicolon.live/file/'+room.club.profile_image}
+        return {'id': str(room.club.club_id), 'name': room.club.club_name,'image': 'https://api.semicolon.live/file/'+room.club.profile_image}
 
 
 # 채팅 내역 보기
@@ -113,35 +113,35 @@ def applicant_list(club_id):
 
 # 소켓 연결
 def connect():
-    logger.info('[Socket Connect Successfully] - '+str(request.headers).strip('').replace('\n', ' '))
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
+    logger.info('[Socket Connect Successfully] - '+str(request.headers).strip('').replace('\n', ' '))
 
 
 # 방 입장
 @room_token_required
 def event_join_room(json):
     join_room(json.get('room_id'))
-    logger.info('[Join Room] - '+str(request.headers).strip('').replace('\n', ' '))
     emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
+    logger.info('[Join Room] - '+str(request.headers).strip('').replace('\n', ' '))
 
 
 # 채팅 보내기
 @room_token_required
 @chat_message_required
 def event_send_chat(json):
-    logger.info('JSON: '+str(json))
     emit('recv_chat', {'msg': json.get('msg'), 'user_type': json.get('user_type')}, room=json.get('room_id'))
     logger.info('[Send Chat] - '+str(request.headers).strip('').replace('\n', ' '))
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    
+    logger.info('JSON: '+str(json))
 
 
 # 방 나가기
 @room_token_required
 def event_leave_room(json):
     leave_room(json.get('room_id'))
-    logger.info('[Leave Room] - '+str(request.headers).strip('').replace('\n', ' '))
     emit('response', {'msg': 'Leave Room Success'}, namespace='/chat')
+    logger.info('[Leave Room] - '+str(request.headers).strip('').replace('\n', ' '))
 
 
 # 소켓 연결 끊기
