@@ -30,6 +30,26 @@ def room_token_required(fn):
     return wrapper
 
 
+def room_read(fn):
+    @wraps(fn)
+    def wrapper(json):
+        room = Room.query.get(json.get('room_id'))
+        room.read(user_type=json.get('user_type'))
+
+        return fn(json)
+    return wrapper
+
+
+def room_writed(fn):
+    @wraps(fn)
+    def wrapper(json):
+        room = Room.query.get(json.get('room_id'))
+        room.writed(user_type=json.get('user_type'))
+
+        return fn(json)
+    return wrapper
+
+
 def apply_message_required(fn):
     @wraps(fn)
     def wrapper(json):
