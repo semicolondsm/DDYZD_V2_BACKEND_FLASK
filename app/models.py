@@ -20,7 +20,11 @@ class Room(db.Model):
     chats = db.relationship('Chat', backref='room', lazy='dynamic')
 
     def __lt__(self, operand):
-        return self.last_message()[1] < operand.last_message()[1]
+        try:
+            boolean = self.last_message()[1] < operand.last_message()[1]
+        except TypeError:
+            boolean = False
+        return boolean
 
     def last_message(self):
         chat = self.chats.order_by(Chat.created_at.desc()).first()
