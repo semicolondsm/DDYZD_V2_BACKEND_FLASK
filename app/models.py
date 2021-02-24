@@ -218,7 +218,6 @@ class User(db.Model):
                 return True
             return False
 
-
     def __repr__(self):
         return '<User> {},{}'.format(self.name, self.gcn)
 
