@@ -24,6 +24,7 @@ from flask_socketio import leave_room
 from flask_socketio import join_room
 from flask_socketio import emit
 from flask import request
+from models import kstnow
 import json
 import jwt
 
@@ -106,10 +107,10 @@ def breakdown(user, room):
 def room_token(user, room):
     if user.is_user(room=room):
         token = jwt.encode({"room_id": room.id, 'user_id': get_jwt_identity(), "user_type": 'U', \
-            'club_id': room.club_id ,"exp": datetime.now()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
+            'club_id': room.club_id ,"exp": kstnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
     elif user.is_clubhead(room=room):
         token = jwt.encode({"room_id": room.id, 'user_id': get_jwt_identity(), "user_type": 'C', \
-            'club_id': room.club_id, "exp": datetime.now()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
+            'club_id': room.club_id, "exp": kstnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
     
     return {'room_token': token}, 200
 
@@ -156,7 +157,7 @@ def event_join_room(json):
 @chat_message_required
 @room_writed
 def event_send_chat(json):
-    emit('recv_chat', {'title': None,'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': isoformat(datetime.now())}, room=json.get('room_id'))
+    emit('recv_chat', {'title': None,'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': isoformat(kstnow())}, room=json.get('room_id'))
     emit('alarm', {'room_id': json.get('room_id')}, namespace='/chat')
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()    

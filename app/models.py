@@ -85,7 +85,7 @@ class Chat(db.Model):
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
     title = db.Column(db.String(512))
     msg = db.Column(db.String(512))
-    created_at = db.Column(db.DateTime(6),  default=datetime.now)
+    created_at = db.Column(db.DateTime(6),  default=kstnow)
     user_type = db.Column(db.Enum(ChatEnum))
 
     def json(self):
@@ -137,7 +137,7 @@ class Club(db.Model):
         '''
         if self.start_at == None or self.close_at == None:
             return False
-        return datetime.now() >= self.start_at and datetime.now() <= self.close_at 
+        return kstnow() >= self.start_at and kstnow() <= self.close_at 
 
     def __repr__(self):
         return '<Club> {}>'.format(self.club_name)
@@ -249,3 +249,6 @@ def isoformat(date):
     except:
         date = None
     return date
+
+def kstnow():
+    return datetime.utcnow()+timedelta(hours=9)
