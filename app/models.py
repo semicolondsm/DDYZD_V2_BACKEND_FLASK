@@ -3,12 +3,14 @@ from datetime import datetime
 from datetime import timedelta
 import enum
 
+
 class ChatEnum(enum.Enum):
     U = 1  # 유저
     C = 2  # 동아리장
     H1 = 3 # 동아리 지원
     H2 = 4 # 면접 일정
     H3 = 5 # 면접 결과
+
 
 class Room(db.Model):
     __tablename__ = 'room'
@@ -76,6 +78,7 @@ class Room(db.Model):
     def __repr__(self):
         return '<Room> {}'.format(self.id)
 
+
 class Chat(db.Model):
     __tablename__ = 'chat'
     id = db.Column(db.Integer, primary_key=True)
@@ -95,6 +98,7 @@ class Chat(db.Model):
 
     def __repr__(self):
         return '<Chat> {}'.format(self.msg)
+
 
 class Club(db.Model):
     __tablename__ = 'club'
@@ -138,6 +142,7 @@ class Club(db.Model):
     def __repr__(self):
         return '<Club> {}>'.format(self.club_name)
 
+
 class ClubHead(db.Model):
     __tablename__ = 'club_head'
     id = db.Column(db.Integer, primary_key=True)
@@ -146,6 +151,7 @@ class ClubHead(db.Model):
 
     def __repr__(self):
         return '<ClubHead> {},{}'.format(self.club_head_user.name, self.club.club_name)
+
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -221,12 +227,14 @@ class User(db.Model):
     def __repr__(self):
         return '<User> {},{}'.format(self.name, self.gcn)
 
+
 class Application(db.Model):
     __tablename__ = 'application'
     application_id = db.Column(db.Integer, primary_key=True)
     club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     result = db.Column(db.Boolean(), nullable=True)
+
 
 class Major(db.Model):
     __tablename__ = 'major'
