@@ -2,6 +2,8 @@ from app.decorator import room_token_required
 from app.decorator import chat_message_required
 from app.decorator import room_member_required
 from app.decorator import club_member_required
+from app.decorator import room_writed
+from app.decorator import room_read
 from app.errors import websocket
 from app.errors import http
 from app.models import Application
@@ -74,7 +76,7 @@ def make_room(club_id):
         db.session.add(room)
         db.session.commit()
 
-    return {'room_id': str(room.id), }, 200
+    return {'room_id': str(room.id)}, 200
 
 
 # 채팅방 정보
@@ -142,6 +144,7 @@ def connect():
 
 # 방 입장
 @room_token_required
+@room_read
 def event_join_room(json):
     join_room(json.get('room_id'))
     emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
@@ -151,6 +154,7 @@ def event_join_room(json):
 # 채팅 보내기
 @room_token_required
 @chat_message_required
+@room_writed
 def event_send_chat(json):
     emit('recv_chat', {'title': None,'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': isoformat(datetime.now())}, room=json.get('room_id'))
     emit('alarm', {'room_id': json.get('room_id')}, namespace='/chat')
@@ -161,6 +165,7 @@ def event_send_chat(json):
 
 # 방 나가기
 @room_token_required
+@room_read
 def event_leave_room(json):
     leave_room(json.get('room_id'))
     emit('response', {'msg': 'Leave Room Success'}, namespace='/chat')

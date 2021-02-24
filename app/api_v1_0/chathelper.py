@@ -1,6 +1,8 @@
 from app.decorator import schedule_information_required
 from app.decorator import apply_message_required
 from app.decorator import room_token_required
+from app.decorator import room_writed
+from app.decorator import room_read
 from app.errors import websocket
 from app.models import User 
 from app.models import Club
@@ -27,6 +29,7 @@ def get_apply_message(user, club, major):
 # 동아리 지원
 @room_token_required
 @apply_message_required
+@room_writed
 def helper_apply(json):
     user = User.query.get(json.get('user_id'))
     club = Club.query.get(json.get('club_id'))
@@ -76,6 +79,7 @@ def get_schedule_message(user, club, date, location):
 # 면접 스케쥴 
 @room_token_required
 @schedule_information_required
+@room_writed
 def helper_schedule(json):
     user = Room.query.get(json.get('room_id')).user
     club = Club.query.get(json.get('club_id'))    
@@ -96,6 +100,7 @@ def helper_schedule(json):
     logger.info('[Helper Schedule] - '+ title)
 
 
+@room_writed
 def helper_result(json):
     pass
 
