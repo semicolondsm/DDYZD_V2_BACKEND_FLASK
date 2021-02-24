@@ -25,14 +25,7 @@ class Room(db.Model):
         created_at = isoformat(chat.created_at) if chat is not None else None
         return msg, created_at 
 
-    def is_member(self, user):
-        if self.user == user:
-            return True
-        if self.club.club_head[0].user_id == user.user_id:
-            return True
-        return False
-
-    def json(self, is_user, index):
+    def json(self, is_user, index=0):
         msg, created_at = self.last_message()
         if is_user:
             club = Club.query.get(self.club_id)
@@ -178,15 +171,23 @@ class User(db.Model):
         '''
         return Application.query.filter_by(user_id=self.user_id, club_id=club.club_id, result=result).first()
 
-    def is_member(self, club):
+    def is_member(self, club=None, room=None):
         '''
         내가 동아리의 맴버인지 아는 메서드
         '''
-        if self.is_clubhead(club=club):
-            return True
-        if self.is_applicant(club=club, result=True):
-            return True
-        return False
+        if club is not None:
+            if self.is_clubhead(club=club):
+                return True
+            if self.is_applicant(club=club, result=True):
+                return True
+            return False
+        if room is not None:
+            if self == room.user:
+                return True
+            if room.club.club_head[0].user_id == self.user_id:
+                return True
+            return False
+
 
     def __repr__(self):
         return '<User> {},{}'.format(self.name, self.gcn)
