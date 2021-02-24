@@ -220,6 +220,6 @@ class Major(db.Model):
 def isoformat(date):
     try:
         date = date.isoformat()+'.000+09:00'
-    except TypeError:
+    except AttributeError:
         date = None
     return date
