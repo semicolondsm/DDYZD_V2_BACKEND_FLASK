@@ -97,9 +97,9 @@ class Club(db.Model):
     def __lt__(self, operand):
         try:
             boolean = self.club_name < operand.club_name
-        except:
+        except TypeError:
             boolean = False
-        return 
+        return boolean
 
     def get_all_applicant_room(self):
         '''
