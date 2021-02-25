@@ -137,7 +137,7 @@ def room_writed(fn):
 def get_apply_message(user, club, major):
     title = '{name}님이 동아리에 지원하셨습니다'.format(name=user.name) 
     msg = '{gcn} {name}님이 {club}에 {major} 분야로 지원하셨습니다'\
-        .format(gcn=user.gcn, name=user.name, club=club.club_name, major=major.major_name)
+        .format(gcn=user.gcn, name=user.name, club=club.club_name, major=major)
     
     return title, msg
 
@@ -153,8 +153,8 @@ def apply_message_required(fn):
         json['major'] = json.get('args').get('major')
         if json['major'] is None:
             return emit('error', websocket.BadRequest('Please send with major'), namespace='/chat')
-        user = User.query.get(json.get('user'))
-        club = CLub.query.get(json.get('club'))
+        user = User.query.get(json.get('user_id'))
+        club = Club.query.get(json.get('club_id'))
         json['title'], json['msg'] = get_apply_message(user, club, json.get('major'))
         json['msg_type'] = MsgType(2)  # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
 
@@ -186,8 +186,8 @@ def schedule_information_required(fn):
     def wrapper(json):
         if json.get('args').get('date') is None or json.get('args').get('location') is None:
             return emit('error', websocket.BadRequest('Please send with date and location'), namespace='/chat')
-        user = User.query.get(json.get('user'))
-        club = CLub.query.get(json.get('club'))
+        user = Room.query.get(json.get('room_id')).user
+        club = Club.query.get(json.get('club_id'))
         json['title'], json['msg'] = get_schedule_message(user, club, json.get('args').get('date'), json.get('args').get('location'))
         json['msg_type'] = MsgType(2)  # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
     
@@ -216,6 +216,8 @@ def result_required(fn):
         json['result'] = json.get('args').get('result')
         if json.get('result') is None:
             return emit('error', websocket.BadRequest('Please send with result'), namespace='/chat')
+        user = Room.query.get(json.get('room_id')).user
+        club = Club.query.get(json.get('club_id'))
         json['title'], json['msg'] = get_result_message(user, club, result=json.get('result'))
         json['msg_type'] = MsgType(2) # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
 
