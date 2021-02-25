@@ -4,6 +4,7 @@ from app.models import ClubHead
 from app.models import Room
 from app.models import User
 from app.models import Club
+from app.models import MsgType
 from app.fcm import fcm_alarm
 from app import logger
 from config import Config
@@ -78,17 +79,19 @@ def send_alarm(fn):
     @wraps(fn)
     def wrapper(json):
         room = Room.query.get(json.get('room_id'))
-        if json.get('user_type') == 'U':
-            #일반 유저가 메시지를 보낸 경우
-            #동아리장에게 알림이 간다
+        #일반 유저가 메시지를 보낸 경우
+         if json.get('user_type') == 'U':
             send_user = room.user.name
             recv_user = room.club.club_head[0].club_head_user
-            msg = json.get('msg')
+        #동아리장이 메시지를 보낸 경우
         else:
-            #동아리장이 메시지를 보낸 경우
-            #일반 유저에게 알림이 간다
             send_user = room.club.club_name
             recv_user = room.user
+        # 일반 채팅 메시지인 경우
+        if json.get('msg_type') == MsgType('C'):
+            msg = json.get('msg')
+        # 봇이 보낸 메시지인 경우
+        else:
             msg = json.get('title')
         emit('alarm', {'room_id': str(json.get('room_id'))}, room=recv_user.session_id)
         # title: 보내는 사람 이름 혹은 보내는 동아리 이름
@@ -156,7 +159,8 @@ def schedule_information_required(fn):
         user = User.query.get(json.get('user'))
         club = CLub.query.get(json.get('club'))
         json['title'], json['msg'] = get_schedule_message(user, club, json.get('args').get('date'), json.get('args').get('location'))
-            
+        json['msg_type'] = MsgType('H')  # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
+    
         return fn(json)
     return wrapper
 
@@ -183,6 +187,7 @@ def apply_message_required(fn):
         user = User.query.get(json.get('user'))
         club = CLub.query.get(json.get('club'))
         json['title'], json['msg'] = get_apply_message(user, club, json.get('major'))
+        json['msg_type'] = MsgType('H')  # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
 
         return fn(json)
     return wrapper
@@ -197,8 +202,9 @@ def chat_message_required(fn):
     @wraps(fn)
     def wrapper(json):
         json['msg'] = json.get('args').get('msg')
-        if json['msg'] is None:
+        if json.get('msg') is None:
             return emit('error', websocket.BadRequest('Please send with message'), namespace='/chat')
+        json['msg_type'] = MsgType('C') # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
         
         return fn(json)
     return wrapper

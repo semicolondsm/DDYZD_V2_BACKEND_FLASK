@@ -9,11 +9,11 @@ cred = credentials.Certificate('ddyzd-firebase-adminsdk.json')
 default_app = firebase_admin.initialize_app(cred)
 
 
-def fcm_alarm(title, msg, token):
+def fcm_alarm(sender, msg, token):
     aps = messaging.APNSPayload(messaging.Aps(sound="default"))
     message = messaging.Message(
         notification=messaging.Notification(
-            title=title,
+            title=senrder,
             body=msg  
         ),
         apns=messaging.APNSConfig(payload=aps),
