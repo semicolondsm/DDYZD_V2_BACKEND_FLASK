@@ -4,6 +4,7 @@ from app.models import ClubHead
 from app.models import Room
 from app.models import User
 from app.models import Club
+from app import fcm_alarm
 from app import logger
 from config import Config
 from flask_jwt_extended import jwt_required
@@ -106,7 +107,8 @@ def send_alarm(fn):
             '''
             user = room.user
         emit('alarm', {'room_id': str(json.get('room_id'))}, room=user.session_id)
-
+        fcm_alarm(title=json.get('title'), msg=json.get('msg'), token=user.device_token)
+        
         return fn(json)
     return wrapper
 
