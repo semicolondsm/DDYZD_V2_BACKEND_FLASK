@@ -13,7 +13,7 @@ def fcm_alarm(sender, msg, token):
     aps = messaging.APNSPayload(messaging.Aps(sound="default"))
     message = messaging.Message(
         notification=messaging.Notification(
-            title=senrder,
+            title=sender,
             body=msg  
         ),
         apns=messaging.APNSConfig(payload=aps),

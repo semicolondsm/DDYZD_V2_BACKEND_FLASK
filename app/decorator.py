@@ -96,7 +96,7 @@ def send_alarm(fn):
         emit('alarm', {'room_id': str(json.get('room_id'))}, room=recv_user.session_id)
         # title: 보내는 사람 이름 혹은 보내는 동아리 이름
         # msg: 일반 유저인 경우 일반 메시지, 봇인 경우 제목을 전송
-        fcm_alarm(title=send_user, msg=msg, token=recv_user.device_token)
+        fcm_alarm(sender=send_user, msg=msg, token=recv_user.device_token)
 
         return fn(json)
     return wrapper
