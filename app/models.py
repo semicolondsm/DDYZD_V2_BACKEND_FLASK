@@ -23,6 +23,11 @@ class ChatEnum(enum.Enum):
     H2 = 4 # 면접 일정
     H3 = 5 # 면접 결과
 
+ 
+class MsgType(enum.Enum):
+    C = 1 # 일반 채팅 메시지
+    H = 2 # 봇이 보낸 메시지
+
 
 class Room(db.Model):
     __tablename__ = 'room'
