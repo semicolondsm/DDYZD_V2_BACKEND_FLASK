@@ -50,7 +50,6 @@ def helper_apply(json):
     db.session.add(Application(club_id=json.get('club_id'), user_id=json.get('user_id'), result=False))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type='H1'))
     db.session.commit()
-    
     logger.info('[Helper Apply] - '+ json.get('title'))
 
 
@@ -70,11 +69,10 @@ def helper_schedule(json):
     if not user.is_applicant(club, result=False):
         return emit('error', websocket.BadRequest('The user is not applicant'), namespace='/chat') 
 
-    emit('recv_chat', {'title': title, 'msg': msg, 'user_type': 'H2'}, room=json.get('room_id'))
-    db.session.add(Chat(room_id=json.get('room_id'), title=title, msg=msg, user_type='H2'))
+    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H2'}, room=json.get('room_id'))
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type='H2'))
     db.session.commit()
-    
-    logger.info('[Helper Schedule] - '+ title)
+    logger.info('[Helper Schedule] - '+ json.get('title'))
 
 
 @room_token_required
@@ -92,9 +90,10 @@ def helper_result(json):
     if not user.is_applicant(club, result=False):
         return emit('error', websocket.BadRequest('The user is not applicant'), namespace='/chat') 
     
-    emit('recv_chat', {'title': title, 'msg': msg, 'user_type': 'H3'}, room=json.get('room_id'))
-    db.session.add(Chat(room_id=json.get('room_id'), title=title, msg=msg, user_type='H3'))
+    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H3'}, room=json.get('room_id'))
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type='H3'))
     db.session.commit()
+    logger.info('[Helper Result] - '+ json.get('title'))
  
 
 def helper_answer(json):
