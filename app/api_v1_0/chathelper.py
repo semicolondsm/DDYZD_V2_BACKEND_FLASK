@@ -1,6 +1,7 @@
 from app.decorator import schedule_information_required
 from app.decorator import apply_message_required
 from app.decorator import room_token_required
+from app.decorator import result_required
 from app.decorator import room_writed
 from app.decorator import send_alarm
 from app.decorator import room_read
@@ -46,7 +47,6 @@ def helper_apply(json):
         return emit('error', websocket.BadRequest('Club does not need '+str(json.get('major'))), namespace='/chat')
     
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H1'}, room=json.get('room_id'))
-    
     db.session.add(Application(club_id=json.get('club_id'), user_id=json.get('user_id'), result=False))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type='H1'))
     db.session.commit()
@@ -65,23 +65,37 @@ def helper_schedule(json):
  
     # 동아리 장이 아닌 사람이 호출한 경우
     if json.get('user_type') != 'C':
-        return emit('error', websocket.BadRequest('Only club head use this helper'), namespace='/chat') 
+        return emit('error', websocket.Forbidden('Only club head use this helper'), namespace='/chat') 
     # 신청자가 아닌 사람에게 보낸 경우
     if not user.is_applicant(club, result=False):
         return emit('error', websocket.BadRequest('The user is not applicant'), namespace='/chat') 
 
-    title, msg = get_schedule_message(user, club, json.get('date'), json.get('location'))
-    emit('recv_chat', {'title': title, 'msg': msg, 'user_type': json.get('user_type')}, room=json.get('room_id'))
- 
+    emit('recv_chat', {'title': title, 'msg': msg, 'user_type': 'H2'}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=title, msg=msg, user_type='H2'))
     db.session.commit()
     
     logger.info('[Helper Schedule] - '+ title)
 
 
+@room_token_required
+@result_required
 @room_writed
+@send_alarm
 def helper_result(json):
-    pass
+    user = Room.query.get(json.get('room_id')).user
+    club = Club.query.get(json.get('club_id'))   
+
+    # 동아리 장이 아닌 사람이 호출한 경우
+    if json.get('user_type') != 'C':
+        return emit('error', websocket.Forbidden('Only club head use this helper'), namespace='/chat') 
+     # 신청자가 아닌 사람에게 보낸 경우
+    if not user.is_applicant(club, result=False):
+        return emit('error', websocket.BadRequest('The user is not applicant'), namespace='/chat') 
+    
+    emit('recv_chat', {'title': title, 'msg': msg, 'user_type': 'H3'}, room=json.get('room_id'))
+    db.session.add(Chat(room_id=json.get('room_id'), title=title, msg=msg, user_type='H3'))
+    db.session.commit()
+ 
 
 def helper_answer(json):
     pass
