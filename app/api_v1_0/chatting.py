@@ -1,7 +1,7 @@
-from app.decorator import room_token_required
 from app.decorator import chat_message_required
 from app.decorator import room_member_required
 from app.decorator import club_member_required
+from app.decorator import room_token_required
 from app.decorator import room_writed
 from app.decorator import send_alarm
 from app.decorator import room_read
@@ -162,7 +162,7 @@ def event_join_room(json):
 @room_writed
 @send_alarm
 def event_send_chat(json):
-    emit('recv_chat', {'title': None,'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': isoformat(kstnow())}, room=json.get('room_id')) 
+    emit('recv_chat', {'title': None, 'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': isoformat(kstnow())}, room=json.get('room_id')) 
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()   
     logger.info('[Send Chat] - [{msg}]'.format(msg=json.get('msg')))
