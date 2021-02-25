@@ -174,7 +174,8 @@ class User(db.Model):
     email = db.Column(db.String(50))
     device_token = db.Column(db.String(4096))
     bio = db.Column(db.String(256))
-    
+    session_id = db.Column(db.String(256), nullable=True, default=False)
+
     rooms = db.relationship('Room', backref='user', lazy='dynamic')
     club_heads = db.relationship('ClubHead', backref='club_head_user')
     applicants = db.relationship('Application', backref='user')
