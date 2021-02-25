@@ -49,9 +49,9 @@ class Room(db.Model):
             
     def writed(self, user_type):
         if user_type == 'C':
-            self.club_looked = False
-        else:
             self.user_looked = False
+        else:
+            self.club_looked = False
         db.session.commit()
 
     def last_message(self):
