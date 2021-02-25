@@ -87,12 +87,14 @@ def send_alarm(fn):
         else:
             send_user = room.club.club_name
             recv_user = room.user
+
         # 일반 채팅 메시지인 경우
         if json.get('msg_type') == MsgType(1):
             msg = json.get('msg')
         # 봇이 보낸 메시지인 경우
         else:
             msg = json.get('title')
+
         emit('alarm', {'room_id': str(json.get('room_id'))}, room=recv_user.session_id)
         # title: 보내는 사람 이름 혹은 보내는 동아리 이름
         # msg: 일반 유저인 경우 일반 메시지, 봇인 경우 제목을 전송
@@ -132,39 +134,6 @@ def room_writed(fn):
     return wrapper
 
 
-def get_schedule_message(user, club, date, location):
-    title = '{user_name}님의 면접 일정'.format(user_name=user.name)
-    msg = '''{gcn} {user_name}님의 {club_name} 동아리 면접 일정입니다
-    
-    일시: {date}
-    장소: {location}'''.format(
-    gcn=user.gcn, 
-    user_name=user.name, 
-    club_name=club.club_name,
-    date=date,
-    location=location)
-    
-    return title, msg
-
-
-def schedule_information_required(fn):
-    '''
-    요약: helper_schedule 이벤트에서 일정 정보를 처리하기 위한 데코레이터
-    room_token_required과 같이 연계되어 사용되어야한다.
-    '''
-    @wraps(fn)
-    def wrapper(json):
-        if json.get('args').get('date') is None or json.get('args').get('location') is None:
-            return emit('error', websocket.BadRequest('Please send with date and location'), namespace='/chat')
-        user = User.query.get(json.get('user'))
-        club = CLub.query.get(json.get('club'))
-        json['title'], json['msg'] = get_schedule_message(user, club, json.get('args').get('date'), json.get('args').get('location'))
-        json['msg_type'] = MsgType(2)  # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
-    
-        return fn(json)
-    return wrapper
-
-
 def get_apply_message(user, club, major):
     title = '{name}님이 동아리에 지원하셨습니다'.format(name=user.name) 
     msg = '{gcn} {name}님이 {club}에 {major} 분야로 지원하셨습니다'\
@@ -187,10 +156,71 @@ def apply_message_required(fn):
         user = User.query.get(json.get('user'))
         club = CLub.query.get(json.get('club'))
         json['title'], json['msg'] = get_apply_message(user, club, json.get('major'))
-        json['msg_type'] = MsgType(2)  # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
+        json['msg_type'] = MsgType(2)  # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
 
         return fn(json)
     return wrapper
+
+
+def get_schedule_message(user, club, date, location):
+    title = '{user_name}님의 면접 일정'.format(user_name=user.name)
+    msg = '''{gcn} {user_name}님의 {club_name} 동아리 면접 일정입니다
+    
+    일시: {date}
+    장소: {location}'''.format(
+    gcn=user.gcn, 
+    user_name=user.name, 
+    club_name=club.club_name,
+    date=date,
+    location=location)
+    
+    return title, msg
+
+
+def schedule_information_required(fn):
+    '''
+    요약: helper_schedule 이벤트에서 일정 정보를 처리하는 데코레이터
+    room_token_required과 같이 연계되어 사용되어야한다.
+    '''
+    @wraps(fn)
+    def wrapper(json):
+        if json.get('args').get('date') is None or json.get('args').get('location') is None:
+            return emit('error', websocket.BadRequest('Please send with date and location'), namespace='/chat')
+        user = User.query.get(json.get('user'))
+        club = CLub.query.get(json.get('club'))
+        json['title'], json['msg'] = get_schedule_message(user, club, json.get('args').get('date'), json.get('args').get('location'))
+        json['msg_type'] = MsgType(2)  # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
+    
+        return fn(json)
+    return wrapper
+
+
+def get_result_message(user, club, result=False):
+    if result:
+        title = "{user}님 {club} 동아리 합격을 축하드립니다!".format(user=user.name, club=club.club_name)
+        msg = "{user}님의 {club} 동아리 면접결과, 합격을 알려드립니다".format(user=user.name, club=club.club_name)
+    else:
+        title = "{user}님은 불합격하셨습니다".format(user=user.name)
+        msg = "{user}님의 {club} 동아리 면접결과, 불합격을 알려드립니다".format(user=user.name, club=club.club_name)
+
+    return title, msg    
+
+
+def result_required(fn):
+    '''
+    요약: helper_result 동아리 면접 결과 처리하는 데코레이터
+    마찬가지로 room_token_required와 같이 연계되어야 한다.
+    '''
+    @wraps(fn)
+    def wrapper(json):
+        json['result'] = json.get('args').get('result')
+        if json.get('result') is None:
+            return emit('error', websocket.BadRequest('Please send with result'), namespace='/chat')
+        json['title'], json['msg'] = get_result_message(user, club, result=json.get('result'))
+        json['msg_type'] = MsgType(2) # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
+
+        return fn(json)
+    return wrapper 
 
 
 def chat_message_required(fn):    
@@ -204,7 +234,7 @@ def chat_message_required(fn):
         json['msg'] = json.get('args').get('msg')
         if json.get('msg') is None:
             return emit('error', websocket.BadRequest('Please send with message'), namespace='/chat')
-        json['msg_type'] = MsgType(1) # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
+        json['msg_type'] = MsgType(1) # fcm 알림을 보낼 때  일반 채팅 메시지 임을 알려둠
         
         return fn(json)
     return wrapper
