@@ -1,10 +1,13 @@
-import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import messaging
 from firebase_admin import datetime
+from app import logger
+import firebase_admin
+
 
 cred = credentials.Certificate('ddyzd-firebase-adminsdk.json')
 default_app = firebase_admin.initialize_app(cred)
+
 
 def fcm_alarm(title, msg, token):
     aps = messaging.APNSPayload(messaging.Aps(sound="default"))
@@ -16,4 +19,7 @@ def fcm_alarm(title, msg, token):
         apns=messaging.APNSConfig(payload=aps),
         token=token
     )
-    messaging.send(message)
+    try:
+        messaging.send(message)
+    except ValueError as e:
+        logger.info(e)
