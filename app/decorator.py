@@ -88,7 +88,7 @@ def send_alarm(fn):
             send_user = room.club.club_name
             recv_user = room.user
         # 일반 채팅 메시지인 경우
-        if json.get('msg_type') == MsgType('C'):
+        if json.get('msg_type') == MsgType(1):
             msg = json.get('msg')
         # 봇이 보낸 메시지인 경우
         else:
@@ -159,7 +159,7 @@ def schedule_information_required(fn):
         user = User.query.get(json.get('user'))
         club = CLub.query.get(json.get('club'))
         json['title'], json['msg'] = get_schedule_message(user, club, json.get('args').get('date'), json.get('args').get('location'))
-        json['msg_type'] = MsgType('H')  # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
+        json['msg_type'] = MsgType(2)  # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
     
         return fn(json)
     return wrapper
@@ -187,7 +187,7 @@ def apply_message_required(fn):
         user = User.query.get(json.get('user'))
         club = CLub.query.get(json.get('club'))
         json['title'], json['msg'] = get_apply_message(user, club, json.get('major'))
-        json['msg_type'] = MsgType('H')  # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
+        json['msg_type'] = MsgType(2)  # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
 
         return fn(json)
     return wrapper
@@ -204,7 +204,7 @@ def chat_message_required(fn):
         json['msg'] = json.get('args').get('msg')
         if json.get('msg') is None:
             return emit('error', websocket.BadRequest('Please send with message'), namespace='/chat')
-        json['msg_type'] = MsgType('C') # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
+        json['msg_type'] = MsgType(1) # fcm 알림을 보낼 때 사용할 일반 메시지 타임을 알려둠
         
         return fn(json)
     return wrapper
