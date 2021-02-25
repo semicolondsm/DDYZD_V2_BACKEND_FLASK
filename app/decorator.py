@@ -30,7 +30,7 @@ def room_token_required(fn):
             return emit('error', websocket.Unauthorized('ExpiredSignatureError'), namespace='/chat')
         except Exception as e:
             return emit('error', websocket.Unauthorized(), namespace='/chat')
-        json['args'] = args[0]
+        json['args'] = args[0] # 나머지 argument는 처리하지 않고 'args' 키에 담아 넘겨준다
         
         return fn(json)
     return wrapper
@@ -70,22 +70,6 @@ def club_member_required(fn):
     return wrapper   
 
 
-def schedule_information_required(fn):
-    '''
-    요약: helper_schedule 이벤트에서 일정 정보를 처리하기 위한 데코레이터
-    room_token_required과 같이 연계되어 사용되어야한다.
-    '''
-    @wraps(fn)
-    def wrapper(json):
-        json['date'] = json.get('args').get('date')
-        json['location'] = json.get('args').get('location')
-        if json['date'] is None or json['location'] is None:
-            return emit('error', websocket.BadRequest('Please send with date and location'), namespace='/chat')
-            
-        return fn(json)
-    return wrapper
-
-
 def send_alarm(fn):
     '''
     요약: 알람 보내는 처리를 하는 데코레이터
@@ -95,22 +79,25 @@ def send_alarm(fn):
     def wrapper(json):
         room = Room.query.get(json.get('room_id'))
         if json.get('user_type') == 'U':
-            '''
-            일반 유저가 메시지를 보낸 경우
-            동아리장에게 알림이 간다
-            '''
-            user = room.club.club_head[0].club_head_user
+            #일반 유저가 메시지를 보낸 경우
+            #동아리장에게 알림이 간다
+            send_user = room.user.name
+            recv_user = room.club.club_head[0].club_head_user
+            msg = json.get('msg')
         else:
-            '''
-            동아리장이 메시지를 보낸 경우
-            일반 유저에게 알림이 간다
-            '''
-            user = room.user
-        emit('alarm', {'room_id': str(json.get('room_id'))}, room=user.session_id)
-        fcm_alarm(title=json.get('title'), msg=json.get('msg'), token=user.device_token)
+            #동아리장이 메시지를 보낸 경우
+            #일반 유저에게 알림이 간다
+            send_user = room.club.club_name
+            recv_user = room.user
+            msg = json.get('title')
+        emit('alarm', {'room_id': str(json.get('room_id'))}, room=recv_user.session_id)
+        # title: 보내는 사람 이름 혹은 보내는 동아리 이름
+        # msg: 일반 유저인 경우 일반 메시지, 봇인 경우 제목을 전송
+        fcm_alarm(title=send_user, msg=msg, token=recv_user.device_token)
 
         return fn(json)
     return wrapper
+
 
 def room_read(fn):
     '''
@@ -142,6 +129,46 @@ def room_writed(fn):
     return wrapper
 
 
+def get_schedule_message(user, club, date, location):
+    title = '{user_name}님의 면접 일정'.format(user_name=user.name)
+    msg = '''{gcn} {user_name}님의 {club_name} 동아리 면접 일정입니다
+    
+    일시: {date}
+    장소: {location}'''.format(
+    gcn=user.gcn, 
+    user_name=user.name, 
+    club_name=club.club_name,
+    date=date,
+    location=location)
+    
+    return title, msg
+
+
+def schedule_information_required(fn):
+    '''
+    요약: helper_schedule 이벤트에서 일정 정보를 처리하기 위한 데코레이터
+    room_token_required과 같이 연계되어 사용되어야한다.
+    '''
+    @wraps(fn)
+    def wrapper(json):
+        if json.get('args').get('date') is None or json.get('args').get('location') is None:
+            return emit('error', websocket.BadRequest('Please send with date and location'), namespace='/chat')
+        user = User.query.get(json.get('user'))
+        club = CLub.query.get(json.get('club'))
+        json['title'], json['msg'] = get_schedule_message(user, club, json.get('args').get('date'), json.get('args').get('location'))
+            
+        return fn(json)
+    return wrapper
+
+
+def get_apply_message(user, club, major):
+    title = '{name}님이 동아리에 지원하셨습니다'.format(name=user.name) 
+    msg = '{gcn} {name}님이 {club}에 {major} 분야로 지원하셨습니다'\
+        .format(gcn=user.gcn, name=user.name, club=club.club_name, major=major.major_name)
+    
+    return title, msg
+
+
 def apply_message_required(fn):
     '''
     요약: 동아리 지원 메시지 처리 데코레이터
@@ -153,6 +180,9 @@ def apply_message_required(fn):
         json['major'] = json.get('args').get('major')
         if json['major'] is None:
             return emit('error', websocket.BadRequest('Please send with major'), namespace='/chat')
+        user = User.query.get(json.get('user'))
+        club = CLub.query.get(json.get('club'))
+        json['title'], json['msg'] = get_apply_message(user, club, json.get('major'))
 
         return fn(json)
     return wrapper

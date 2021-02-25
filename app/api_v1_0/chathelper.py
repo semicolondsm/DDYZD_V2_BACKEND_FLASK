@@ -19,14 +19,6 @@ from flask_jwt_extended import jwt_required
 from flask_socketio import emit
 
 
-def get_apply_message(user, club, major):
-    title = '{name}님이 동아리에 지원하셨습니다'.format(name=user.name) 
-    msg = '{gcn} {name}님이 {club}에 {major} 분야로 지원하셨습니다'\
-        .format(gcn=user.gcn, name=user.name, club=club.club_name, major=major.major_name)
-    
-    return title, msg
-
-
 # 동아리 지원
 @room_token_required
 @apply_message_required
@@ -53,29 +45,13 @@ def helper_apply(json):
     if major is None:
         return emit('error', websocket.BadRequest('Club does not need '+str(json.get('major'))), namespace='/chat')
     
-    title, msg = get_apply_message(user=user, club=club, major=major)
-    emit('recv_chat', {'title': title, 'msg': msg, 'user_type': 'H1'}, room=json.get('room_id'))
+    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H1'}, room=json.get('room_id'))
     
     db.session.add(Application(club_id=json.get('club_id'), user_id=json.get('user_id'), result=False))
-    db.session.add(Chat(room_id=json.get('room_id'), title=title, msg=msg, user_type='H1'))
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type='H1'))
     db.session.commit()
     
-    logger.info('[Helper Apply] - '+ title)
-
-
-def get_schedule_message(user, club, date, location):
-    title = '{user_name}님의 면접 일정'.format(user_name=user.name)
-    msg = '''{gcn} {user_name}님의 {club_name} 동아리 면접 일정입니다
-    
-    일시: {date}
-    장소: {location}'''.format(
-    gcn=user.gcn, 
-    user_name=user.name, 
-    club_name=club.club_name,
-    date=date,
-    location=location)
-    
-    return title, msg
+    logger.info('[Helper Apply] - '+ json.get('title'))
 
 
 # 면접 스케쥴 
