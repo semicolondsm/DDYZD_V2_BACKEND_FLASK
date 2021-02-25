@@ -80,7 +80,7 @@ def send_alarm(fn):
     def wrapper(json):
         room = Room.query.get(json.get('room_id'))
         #일반 유저가 메시지를 보낸 경우
-         if json.get('user_type') == 'U':
+        if json.get('user_type') == 'U':
             send_user = room.user.name
             recv_user = room.club.club_head[0].club_head_user
         #동아리장이 메시지를 보낸 경우
