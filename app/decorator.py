@@ -105,9 +105,10 @@ def send_alarm(fn):
             일반 유저에게 알림이 간다
             '''
             user = room.user
+        emit('alarm', {'room_id': str(json.get('room_id'))}, room=user.session_id)
 
-        emit('alarm', {'room_id': str(json.get('room_id'))}, room=json.get('sid'))
-
+        return fn(json)
+    return wrapper
 
 def room_read(fn):
     '''
