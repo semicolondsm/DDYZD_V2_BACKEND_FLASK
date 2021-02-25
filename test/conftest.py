@@ -71,6 +71,7 @@ def db_setting(flask_app):
         db.session.add(User(name='김수완', gcn='1103', image_path='profile1'))
         db.session.add(User(name='조호원', gcn='1118', image_path='profile2'))
         db.session.add(User(name='안은결', gcn='1413', image_path='profile3'))
+        db.session.add(User(name='성예인', gcn='1110', image_path='profile4'))
         db.session.add(Club(club_name='세미콜론', total_budget=3000, current_budget=2000, banner_image='banner image', hongbo_image='hongbo image', profile_image='profile_image', start_at=datetime.now()-timedelta(days=1), close_at=datetime.now()+timedelta(days=1)))
         db.session.add(ClubHead(user_id=1, club_id=1))
         db.session.add(Room(user_id=2, club_id=1))
