@@ -4,14 +4,6 @@ from datetime import timedelta
 import enum
 
 
-class ChatEnum(enum.Enum):
-    U = 1  # 유저
-    C = 2  # 동아리장
-    H1 = 3 # 동아리 지원
-    H2 = 4 # 면접 일정
-    H3 = 5 # 면접 결과
-
-
 def isoformat(date):
     try:
         date = date = date.isoformat()[:-7]+'.000+09:00'
@@ -22,6 +14,15 @@ def isoformat(date):
 
 def kstnow():
     return datetime.utcnow()+timedelta(hours=9)
+
+
+class ChatEnum(enum.Enum):
+    U = 1  # 유저
+    C = 2  # 동아리장
+    H1 = 3 # 동아리 지원
+    H2 = 4 # 면접 일정
+    H3 = 5 # 면접 결과
+
 
 class Room(db.Model):
     __tablename__ = 'room'
