@@ -3,6 +3,7 @@ from app.decorator import chat_message_required
 from app.decorator import room_member_required
 from app.decorator import club_member_required
 from app.decorator import room_writed
+from app.decorator import send_alarm
 from app.decorator import room_read
 from app.errors import websocket
 from app.errors import http
@@ -138,8 +139,11 @@ def applicant_list(user, club):
 
 
 # 소켓 연결
+@jwt_required()
 def connect():
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
+    User.query.get(get_jwt_identity()).session_id = request.sid
+    db.session.commit()
     logger.info('[Socket Connect Successfully]')
 
 
@@ -156,11 +160,11 @@ def event_join_room(json):
 @room_token_required
 @chat_message_required
 @room_writed
+@send_alarm
 def event_send_chat(json):
-    emit('recv_chat', {'title': None,'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': isoformat(kstnow())}, room=json.get('room_id'))
-    emit('alarm', {'room_id': json.get('room_id')}, namespace='/chat')
+    emit('recv_chat', {'title': None,'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': isoformat(kstnow())}, room=json.get('room_id')) 
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
-    db.session.commit()    
+    db.session.commit()   
     logger.info('[Send Chat] - [{msg}]'.format(msg=json.get('msg')))
 
 
