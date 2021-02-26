@@ -151,6 +151,7 @@ def connect():
 @room_token_required
 @room_read
 def event_join_room(json):
+    logger.info(str(json))
     join_room(json.get('room_id'))
     emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
     logger.info('[Join Room]')
@@ -162,6 +163,7 @@ def event_join_room(json):
 @room_writed
 @send_alarm
 def event_send_chat(json):
+    logger.info("Send Chat: "+str(json))
     emit('recv_chat', {'title': None, 'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': isoformat(kstnow())}, room=json.get('room_id')) 
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
     db.session.commit()   
