@@ -24,6 +24,7 @@ def room_token_required(fn):
     '''
     @wraps(fn)
     def wrapper(*args, **kwargs):
+        logger.info('ROOM TOKEN REQUIRED: '+str(args))
         token = args[0].get('room_token')
         try:
             json = jwt.decode(token, Config.ROOM_SECRET_KEY, algorithms="HS256")
@@ -233,6 +234,7 @@ def chat_message_required(fn):
     '''
     @wraps(fn)
     def wrapper(json):
+        logger.info('CHAT JSON: '+str(json))
         json['msg'] = json.get('args').get('msg')
         if json.get('msg') is None:
             return emit('error', websocket.BadRequest('Please send with message'), namespace='/chat')
