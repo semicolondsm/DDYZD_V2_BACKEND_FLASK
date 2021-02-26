@@ -151,7 +151,6 @@ def connect():
 @room_token_required
 @room_read
 def event_join_room(json):
-    logger.info(str(json))
     join_room(json.get('room_id'))
     emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
     logger.info('[Join Room]')
