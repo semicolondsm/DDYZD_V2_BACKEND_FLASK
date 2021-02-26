@@ -19,6 +19,7 @@ def test_ping(db_setting, flask_websocket):
 def test_chat_list(flask_websocket, flask_client, db_setting):
     # 동아리장 채팅 테스트
     flask_websocket.emit('join_room', {'room_token': room_token()}, namespace='/chat')
+    flask_websocket.get_received(namespace='/chat')
     resp = flask_client.get("/chat/list", headers=jwt_token(1))
     assert resp.status_code == 200
     data = resp.data.decode('utf8').replace("'", '"')
@@ -52,25 +53,26 @@ def test_chat_list(flask_websocket, flask_client, db_setting):
 
 
 ## 방 만들기 테스트 ##
-def test_make_room(flask_client, db_setting):
+def test_make_room(db_setting, flask_client, flask_websocket):
     resp = flask_client.post('/chat/1/room', headers=jwt_token(2))
     assert resp.status_code == 200
     data = resp.json
 
     assert data.get('room_id') == '1'
 
-    resp = flask_client.post('/chat/1/room', headers=jwt_token(2))
-    assert resp.status_code == 200
-    data = resp.json
-
-    assert data.get('room_id') == '1'
-
-    resp = flask_client.post('/chat/1/room', headers=jwt_token(1))
+    resp = flask_client.post('/chat/1/room', headers=jwt_token(4))
     assert resp.status_code == 200
     data = resp.json
 
     assert data.get('room_id') == '3'
-    
+
+    flask_websocket.emit('join_room', {'room_token': room_token(room_id=3, user_id=4, club_id=1, user_type='U')}, namespace='/chat')
+    flask_websocket.emit('send_chat', {'msg': "아싸라비아", 'room_token': room_token(room_id=3, user_id=4, club_id=1, user_type='U')}, namespace='/chat')
+    recv = flask_websocket.get_received(namespace='/chat')[1]
+
+    assert recv['name'] == 'alarm'
+    assert recv['args'][0]['room_id'] == '3'
+
 
 ## 채팅 내역 불러오기 테스트 ##
 def test_breakdown(flask_client, db_setting):
@@ -179,7 +181,7 @@ def test_join_room(flask_websocket, db_setting):
 
 
 ## 채팅 보내기 테스트 ## 
-def test_send_chat(flask_websocket, db_setting):
+def test_send_chat(db_setting, flask_websocket):
     # 동아리장 채팅
     flask_websocket.emit('send_chat',{'msg': 'Hello \U0001f600', 'room_token': room_token()}, namespace='/chat')
     recv = flask_websocket.get_received(namespace='/chat')[0]
