@@ -16,13 +16,13 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{database}'\
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{database}?charset=utf8mb4'\
     .format(user=os.getenv('DB_USER'), password=os.getenv('DB_PASS'),  host=os.getenv('DB_URL')+':3306', database=os.getenv('DB_NAME'))
 
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{database}'\
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{database}?charset=utf8mb4'\
     .format(user=os.getenv('DB_USER'), password=os.getenv('DB_PASS'), host=os.getenv('DB_URL')+':3306', database=os.getenv('DB_NAME'))
 
 class TestConfig(Config):
