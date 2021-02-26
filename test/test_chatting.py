@@ -66,8 +66,10 @@ def test_make_room(db_setting, flask_client, flask_websocket):
 
     assert data.get('room_id') == '3'
 
-    flask_websocket.emit('join_room', {'room_token': room_token(room_id=3, user_id=4, club_id=1, user_type='U')}, namespace='/chat')
-    flask_websocket.emit('send_chat', {'msg': "아싸라비아", 'room_token': room_token(room_id=3, user_id=4, club_id=1, user_type='U')}, namespace='/chat')
+    resp = flask_client.get('/room/3/token', headers=jwt_token(4))
+    token = resp.json['room_token']
+    flask_websocket.emit('join_room', {'room_token': token}, namespace='/chat')
+    flask_websocket.emit('send_chat', {'msg': "아싸라비아", 'room_token': token}, namespace='/chat')
     recv = flask_websocket.get_received(namespace='/chat')[1]
 
     assert recv['name'] == 'alarm'
