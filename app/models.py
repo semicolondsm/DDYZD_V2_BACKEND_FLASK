@@ -145,7 +145,7 @@ class Club(db.Model):
         '''
         모든 동아리 신청자 반환하는 메서드
         '''
-        return Room.query.join(Application, Room.user_id==Application.user_id).filter_by(club_id=self.club_id, result=False).all()
+        return Room.query.join(Application, Room.club_id==Application.club_id).filter_by(club_id=self.club_id).filter_by(result=False).all()
 
     def is_recruiting(self):
         '''
@@ -252,6 +252,9 @@ class Application(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     result = db.Column(db.Boolean(), nullable=True)
+
+    def __repr__(self):
+        return '<Application> {},{}'.format(User.query.get(self.user_id).name, Club.query.get(self.club_id).club_name)
 
 
 class Major(db.Model):
