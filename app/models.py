@@ -145,7 +145,7 @@ class Club(db.Model):
         '''
         모든 동아리 신청자 반환하는 메서드
         '''
-        return Room.query.join(User, Room.user_id==User.user_id).join(Application, User.user_id==Application.user_id).filter_by(club_id=self.club_id, result=False).all()
+        return Room.query.join(Application, Room.user_id==Application.user_id).filter_by(club_id=self.club_id, result=False).all()
 
     def is_recruiting(self):
         '''
