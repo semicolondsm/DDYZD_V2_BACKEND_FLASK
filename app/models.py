@@ -1,6 +1,7 @@
 from app import db
 from datetime import datetime
 from datetime import timedelta
+from flask_socketio import rooms
 import enum
 
 
@@ -246,6 +247,10 @@ class User(db.Model):
         내가 해당 채팅방의 맴버인지 아는 메서드
         '''
         return room.user_id == self.id
+
+    def is_in_room(self, room):
+        room_list = rooms(sid=self.session_id, namespace='/chat')
+        return room.id in room_list
 
     def __repr__(self):
         return '<User> {},{}'.format(self.name, self.gcn)

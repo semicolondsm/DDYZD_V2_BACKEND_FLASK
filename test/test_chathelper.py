@@ -2,14 +2,15 @@ from app.models import Room
 from app import logger
 from conftest import room_token
 from conftest import jwt_token
+from app import websocket
 import json
 
 
-def test_helper_apply(db_setting, flask_websocket, flask_client):
-    flask_websocket.emit('join_room', {'room_token': room_token(user_id=4, room_id=3, user_type='U')}, namespace='/chat')
+def test_helper_apply(db_setting, flask_websocket, flask_client, flask_app):
+    # 웹 소켓 연결
+    flask_websocket.emit('join_room', {'room_token': room_token(user_id=1, room_id=3, user_type='C')}, namespace='/chat')
     flask_websocket.emit('helper_apply', {'room_token': room_token(user_id=4, room_id=3, user_type='U'), 'major': '프론트엔드'}, namespace='/chat')
     recv = flask_websocket.get_received(namespace='/chat')[1]
-
 
     assert recv['name'] == 'alarm'
     assert recv['args'][0]['room_id'] == '3'
