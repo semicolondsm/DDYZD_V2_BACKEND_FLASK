@@ -6,7 +6,10 @@ from app.decorator import room_writed
 from app.decorator import send_alarm
 from app.decorator import room_read
 from app.errors import websocket
-from app.models import Application
+from app.models import ClubMember
+from app.models import RoomStatus
+from app.models import UserType
+from app.models import Club
 from app.models import User 
 from app.models import Club
 from app.models import Major
@@ -29,12 +32,11 @@ def helper_apply(json):
     '''
     동아리 면접에 지원하는 채팅 봇
     '''
-    user = User.query.get(json.get('user_id'))
-    club = Club.query.get(json.get('club_id'))
+    room = json.get('room')
     major = Major.query.filter_by(club_id=json.get('club_id'), major_name=json.get('major')).first()
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H1'}, room=json.get('room_id'))
-    db.session.add(Application(club_id=json.get('club_id'), user_id=json.get('user_id'), result=False))
-    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type='H1'))
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(3)))
+    room.status = RoomStatus(2)
     db.session.commit()
     logger.info('[Helper Apply] - '+ json.get('title'))
 
@@ -48,10 +50,10 @@ def helper_schedule(json):
     '''
     면접 일정을 공지하는 채팅 봇
     '''
-    user = Room.query.get(json.get('room_id')).user
-    club = Club.query.get(json.get('club_id'))    
+    room = json.get('room')
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H2'}, room=json.get('room_id'))
-    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type='H2'))
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(4)))
+    room.status = RoomStatus(3)
     db.session.commit()
     logger.info('[Helper Schedule] - '+ json.get('title'))
 
@@ -64,12 +66,11 @@ def helper_result(json):
     '''
     면접 결과를 공지하는 채팅 봇
     '''
-    user = Room.query.get(json.get('room_id')).user
-    club = Club.query.get(json.get('club_id'))   
+    room = json.get('room')
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H3'}, room=json.get('room_id'))
-    application = Application.query.filter_by(user_id=user.user_id, club_id=club.club_id).first()
-    application.result = True # 합격됨
-    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type='H3'))
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(5)))
+    json.get('room').status = RoomStatus(4) # 합격됨
+    room.status = RoomStatus(4)
     db.session.commit()
     logger.info('[Helper Result] - '+ json.get('title'))
  

@@ -192,7 +192,7 @@ class User(db.Model):
 
     rooms = db.relationship('Room', backref='user', lazy='dynamic')
     club_heads = db.relationship('ClubHead', backref='user')
-    club_members = db.relationship('ClubMember', backref='user')
+    club_members = db.relationship('ClubMember', backref='user', lazy='dynamic')
 
     def get_clubs(self):
         '''
@@ -219,30 +219,33 @@ class User(db.Model):
         '''
         return ClubHead.query.filter_by(user_id=self.id, club_id=club.id).first()
 
-    def is_applicant(self, club):
+    def is_applicant(self, club, applicant=False, scheduled=False, resulted=False):
         '''
         내가 동아리에 신청했는지 아는 메서드
-        result가 False이면 신청중인 사람,
-        result가 True이면 동아리에 합격한 사람
         '''
-        return Room.query.filter_by(user_id=self.id).filter_by(club_id=club.id).filter(Room.status!=RoomStatus(1))
+        room_query = Room.query.filter_by(user_id=self.id).filter_by(club_id=club.id)
+        if applicant:
+            return room_query.filter(Room.status==RoomStatus(2)).first()
 
-    def is_member(self, club=None, room=None):
+        if scheduled:
+            return room_query.filter(Room.status==RoomStatus(3)).first()
+            
+        if resulted:
+            return room_query.filter(Room.status==RoomStatus(4)).first()
+
+        return room_query.filter(Room.status!=RoomStatus(1)).first()
+
+    def is_club_member(self, club):
         '''
-        내가 동아리의 맴버인지 아는 메서드
+        내가 해당 동아리의 맴버인지 아는 메서드
         '''
-        if club is not None:
-            if self.is_clubhead(club=club):
-                return True
-            if self.is_applicant(club):
-                return True
-            return False
-        if room is not None:
-            if self == room.user:
-                return True
-            if room.club.club_head[0].user_id == self.id:
-                return True
-            return False
+        return self.club_members.filter_by(club_id=club.id).first()
+    
+    def is_room_member(self, room):
+        '''
+        내가 해당 채팅방의 맴버인지 아는 메서드
+        '''
+        return room.user_id == self.id
 
     def __repr__(self):
         return '<User> {},{}'.format(self.name, self.gcn)
