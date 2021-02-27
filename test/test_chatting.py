@@ -121,12 +121,12 @@ def test_applicant_list(flask_client, db_setting):
     data = resp.data.decode('utf8').replace("'", '"')
     data = json.loads(data)
 
-    assert data[0]['roomid'] == '1'
-    assert data[0]['id'] == '2'
-    assert data[0]['name'] == '조호원'
-    assert data[0]['image'] == 'profile2'
-    assert data[0]['lastdate'] != None
-    assert data[0]['lastmessage'] == '두번째 채팅'
+    assert data[0]['roomid'] == '2'
+    assert data[0]['id'] == '3'
+    assert data[0]['name'] == '안은결'
+    assert data[0]['image'] == 'profile3'
+    assert data[0]['lastdate'] == None
+    assert data[0]['lastmessage'] == None
     assert data[0]['index'] == 0
     
 

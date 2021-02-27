@@ -213,25 +213,19 @@ class User(db.Model):
         '''
         return self.id == room.user_id
   
-    def is_clubhead(self, club=None, room=None):
+    def is_clubhead(self, club):
         '''
         내가 채팅방 혹은 동아리의 동아리장인지 확인하는 메서드
         '''
-        club_head = None
-        if room is not None:
-            club_head = ClubHead.query.filter_by(user_id=self.id, club_id=room.club_id).first()
-        if club is not None:
-            club_head = ClubHead.query.filter_by(user_id=self.id, club_id=club.id).first()
-       
-        return club_head is not None
+        return ClubHead.query.filter_by(user_id=self.id, club_id=club.id).first()
 
-    def is_applicant(self, club, result=False):
+    def is_applicant(self, club):
         '''
         내가 동아리에 신청했는지 아는 메서드
         result가 False이면 신청중인 사람,
         result가 True이면 동아리에 합격한 사람
         '''
-        return Application.query.filter_by(user_id=self.id, club_id=club.id, result=result).first()
+        return Room.query.filter_by(user_id=self.id).filter_by(club_id=club.id).filter(Room.status!=RoomStatus(1))
 
     def is_member(self, club=None, room=None):
         '''
@@ -240,7 +234,7 @@ class User(db.Model):
         if club is not None:
             if self.is_clubhead(club=club):
                 return True
-            if self.is_applicant(club=club, result=True):
+            if self.is_applicant(club):
                 return True
             return False
         if room is not None:

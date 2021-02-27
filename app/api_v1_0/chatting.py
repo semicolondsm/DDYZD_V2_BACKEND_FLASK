@@ -7,7 +7,7 @@ from app.decorator import send_alarm
 from app.decorator import room_read
 from app.errors import websocket
 from app.errors import http
-from app.models import Application
+from app.models import ClubMember
 from app.models import ClubHead
 from app.models import Club
 from app.models import Chat
@@ -45,12 +45,12 @@ def chat_list():
         for r in club.rooms:
             rooms.append(r.json(is_user=False, index=index))
 
-        return {"club_section": club.club_name, "rooms": rooms}, 200
+        return {"club_section": club.name, "rooms": rooms}, 200
     else:
         # 채팅 섹션
         club_section = [user.name] 
         for club in user.get_clubs():
-            club_section.append(club.club_name)
+            club_section.append(club.name)
 
         # 유저 권한의 채팅방 검색
         rs = user.rooms.all()
@@ -86,7 +86,7 @@ def make_room(club_id):
 @room_member_required
 def room_info(user, room):
     if user.is_user(room):
-        return {'id': str(room.club.club_id), 'name': room.club.club_name,'image': 'https://api.semicolon.live/file/'+room.club.profile_image}
+        return {'id': str(room.club.id), 'name': room.club.name,'image': 'https://api.semicolon.live/file/'+room.club.profile_image}
     else:
         return {'id': str(room.user.gcn), 'name': room.user.name, 'image': room.user.image_path}
 
@@ -109,7 +109,7 @@ def room_token(user, room):
     if user.is_user(room=room):
         token = jwt.encode({"room_id": room.id, 'user_id': get_jwt_identity(), "user_type": 'U', \
             'club_id': room.club_id ,"exp": kstnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
-    elif user.is_clubhead(room=room):
+    elif user.is_clubhead(room.club):
         token = jwt.encode({"room_id": room.id, 'user_id': get_jwt_identity(), "user_type": 'C', \
             'club_id': room.club_id, "exp": kstnow()+timedelta(days=1)}, Config.ROOM_SECRET_KEY, algorithm="HS256")
     
