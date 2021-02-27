@@ -29,6 +29,13 @@ class MsgType(enum.Enum):
     H = 2 # 봇이 보낸 메시지
 
 
+class RoomStatus(enum.Enum):
+    C = 1 # 일반 채팅방
+    A = 2 # 지원자 채팅방
+    S = 3 # 면접 일정을 받은 채팅방
+    R = 4 # 면접 결과를 받은 채팅방
+
+
 class Room(db.Model):
     __tablename__ = 'room'
     id = db.Column(db.Integer, primary_key=True)
@@ -36,6 +43,7 @@ class Room(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
     user_looked = db.Column(db.Boolean(), default=False)
     club_looked = db.Column(db.Boolean(), default=False)
+    status = db.Column(db.Enum(RoomStatus), default=RoomStatus(1))
 
     chats = db.relationship('Chat', backref='room', lazy='dynamic')
 
@@ -71,7 +79,7 @@ class Room(db.Model):
         if is_user:
             club = Club.query.get(self.club_id)
             id = club.club_id
-            name = club.club_name
+            name = club.name
             image = 'https://api.semicolon.live/file/'+club.profile_image
             isread = self.user_looked
         else:
@@ -89,6 +97,7 @@ class Room(db.Model):
 		    "lastdate" :  isoformat(created_at),
 		    "lastmessage" : msg,
             "isread": isread,
+            "status": self.status.name,
             "index": index
         }
 
@@ -99,11 +108,11 @@ class Room(db.Model):
 class Chat(db.Model):
     __tablename__ = 'chat'
     id = db.Column(db.Integer, primary_key=True)
-    room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
     title = db.Column(db.String(512))
     msg = db.Column(db.String(512))
     created_at = db.Column(db.DateTime(6),  default=kstnow)
     user_type = db.Column(db.Enum(ChatEnum))
+    room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
 
     def json(self):
         return {
@@ -119,8 +128,8 @@ class Chat(db.Model):
 
 class Club(db.Model):
     __tablename__ = 'club'
-    club_id = db.Column(db.Integer, primary_key=True)
-    club_name = db.Column(db.String(45), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(45), nullable=False)
     total_budget = db.Column(db.Integer, nullable=False)
     current_budget = db.Column(db.Integer, nullable=False)
     start_at = db.Column(db.DateTime())
@@ -136,7 +145,7 @@ class Club(db.Model):
 
     def __lt__(self, operand):
         try:
-            boolean = self.club_name < operand.club_name
+            boolean = self.name < operand.name
         except TypeError:
             boolean = False
         return boolean
@@ -145,7 +154,7 @@ class Club(db.Model):
         '''
         모든 동아리 신청자 반환하는 메서드
         '''
-        return Room.query.join(Application, Room.club_id==Application.club_id).filter_by(club_id=self.club_id).filter_by(result=False).all()
+        return Room.query.join(Application, Room.club_id==Application.club_id).filter_by(id=self.id).filter_by(result=False).all()
 
     def is_recruiting(self):
         '''
@@ -157,22 +166,22 @@ class Club(db.Model):
         return kstnow() >= self.start_at and kstnow() <= self.close_at 
 
     def __repr__(self):
-        return '<Club> {}>'.format(self.club_name)
+        return '<Club> {}>'.format(self.name)
 
 
 class ClubHead(db.Model):
     __tablename__ = 'club_head'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    club_id = db.Column(db.Integer, db.ForeignKey('club.club_id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    club_id = db.Column(db.Integer, db.ForeignKey('club.id', ondelete='CASCADE'))
 
     def __repr__(self):
-        return '<ClubHead> {},{}'.format(self.club_head_user.name, self.club.club_name)
+        return '<ClubHead> {},{}'.format(self.club_head_user.name, self.club.name)
 
 
 class User(db.Model):
     __tablename__ = 'user'
-    user_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(15))
     gcn = db.Column(db.String(5))
     image_path = db.Column(db.String(45))
@@ -203,7 +212,7 @@ class User(db.Model):
         '''
         내가 채팅방의 일반 유저인지 확인하는 메서드
         '''
-        return self.user_id == room.user_id
+        return self.id == room.user_id
   
     def is_clubhead(self, club=None, room=None):
         '''
@@ -211,9 +220,9 @@ class User(db.Model):
         '''
         club_head = None
         if room is not None:
-            club_head = ClubHead.query.filter_by(user_id=self.user_id, club_id=room.club_id).first()
+            club_head = ClubHead.query.filter_by(user_id=self.id, club_id=room.club_id).first()
         if club is not None:
-            club_head = ClubHead.query.filter_by(user_id=self.user_id, club_id=club.club_id).first()
+            club_head = ClubHead.query.filter_by(user_id=self.id, club_id=club.id).first()
        
         return club_head is not None
 
@@ -223,7 +232,7 @@ class User(db.Model):
         result가 False이면 신청중인 사람,
         result가 True이면 동아리에 합격한 사람
         '''
-        return Application.query.filter_by(user_id=self.user_id, club_id=club.club_id, result=result).first()
+        return Application.query.filter_by(user_id=self.id, club_id=club.id, result=result).first()
 
     def is_member(self, club=None, room=None):
         '''
@@ -238,7 +247,7 @@ class User(db.Model):
         if room is not None:
             if self == room.user:
                 return True
-            if room.club.club_head[0].user_id == self.user_id:
+            if room.club.club_head[0].user_id == self.id:
                 return True
             return False
 
@@ -246,19 +255,18 @@ class User(db.Model):
         return '<User> {},{}'.format(self.name, self.gcn)
 
 
-class Application(db.Model):
-    __tablename__ = 'application'
-    application_id = db.Column(db.Integer, primary_key=True)
-    club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    result = db.Column(db.Boolean(), nullable=True)
+class ClubMember(db.Model):
+    __tablename__ = 'club_member'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    club_id = db.Column(db.Integer, db.ForeignKey('club.id'))
 
     def __repr__(self):
-        return '<Application> {},{}'.format(User.query.get(self.user_id).name, Club.query.get(self.club_id).club_name)
+        return '<Application> {},{}'.format(User.query.get(self.user_id).name, Club.query.get(self.club_id).name)
 
 
 class Major(db.Model):
     __tablename__ = 'major'
     id = db.Column(db.Integer, primary_key=True)
-    club_id = db.Column(db.Integer, db.ForeignKey("club.club_id"))
     major_name = db.Column(db.String(45))
+    club_id = db.Column(db.Integer, db.ForeignKey("club.id"))
