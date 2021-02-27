@@ -6,10 +6,10 @@ from app.decorator import room_writed
 from app.decorator import send_alarm
 from app.decorator import room_read
 from app.errors import websocket
+from app.models import Application
 from app.models import User 
 from app.models import Club
 from app.models import Major
-from app.models import Application
 from app.models import Chat
 from app.models import Room
 from app import logger
@@ -26,6 +26,9 @@ from flask_socketio import emit
 @room_writed
 @send_alarm
 def helper_apply(json):
+    '''
+    동아리 면접에 지원하는 채팅 봇
+    '''
     user = User.query.get(json.get('user_id'))
     club = Club.query.get(json.get('club_id'))
     major = Major.query.filter_by(club_id=json.get('club_id'), major_name=json.get('major')).first()
@@ -59,6 +62,9 @@ def helper_apply(json):
 @room_writed
 @send_alarm
 def helper_schedule(json):
+    '''
+    면접 일정을 공지하는 채팅 봇
+    '''
     user = Room.query.get(json.get('room_id')).user
     club = Club.query.get(json.get('club_id'))    
  
@@ -80,6 +86,9 @@ def helper_schedule(json):
 @room_writed
 @send_alarm
 def helper_result(json):
+    '''
+    면접 결과를 공지하는 채팅 봇
+    '''
     user = Room.query.get(json.get('room_id')).user
     club = Club.query.get(json.get('club_id'))   
 
@@ -91,6 +100,8 @@ def helper_result(json):
         return emit('error', websocket.BadRequest('The user is not applicant'), namespace='/chat') 
     
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H3'}, room=json.get('room_id'))
+    application = Application.query.filter_by(user_id=user.user_id, club_id=club.club_id).first()
+    application.result = True # 합격됨
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type='H3'))
     db.session.commit()
     logger.info('[Helper Result] - '+ json.get('title'))
