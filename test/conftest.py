@@ -1,5 +1,6 @@
-from app.models import Application
+from app.models import ClubMember
 from app.models import ClubHead
+from app.models import UserType 
 from app.models import Major
 from app.models import Room 
 from app.models import Chat 
@@ -72,13 +73,14 @@ def db_setting(flask_app):
         db.session.add(User(name='조호원', gcn='1118', image_path='profile2'))
         db.session.add(User(name='안은결', gcn='1413', image_path='profile3'))
         db.session.add(User(name='성예인', gcn='1110', image_path='profile4'))
-        db.session.add(Club(club_name='세미콜론', total_budget=3000, current_budget=2000, banner_image='banner image', hongbo_image='hongbo image', profile_image='profile_image', start_at=datetime.now()-timedelta(days=1), close_at=datetime.now()+timedelta(days=1)))
+        db.session.add(Club(name='세미콜론', total_budget=3000, current_budget=2000, banner_image='banner image', hongbo_image='hongbo image', profile_image='profile_image', start_at=datetime.now()-timedelta(days=1), close_at=datetime.now()+timedelta(days=1)))
         db.session.add(ClubHead(user_id=1, club_id=1))
-        db.session.add(Room(user_id=2, club_id=1))
-        db.session.add(Room(user_id=3, club_id=1))
-        db.session.add(Chat(room_id=1, msg='첫번째 채팅', user_type='U'))
-        db.session.add(Chat(room_id=1, msg='두번째 채팅', user_type='C'))
+        db.session.add(Room(id=1, user_id=2, club_id=1))
+        db.session.add(Room(id=2, user_id=3, club_id=1, status='A'))
+        db.session.add(Room(id=3, user_id=4, club_id=1))
+        db.session.add(Chat(room_id=1, msg='첫번째 채팅', user_type=UserType(1)))
+        db.session.add(Chat(room_id=1, msg='두번째 채팅', user_type=UserType(2)))
         db.session.add(Major(club_id=1, major_name='프론트엔드'))
-        db.session.add(Application(user_id=2, club_id=1, result=False))
+        db.session.add(ClubMember(user_id=2, club_id=1))
 
         db.session.commit()
