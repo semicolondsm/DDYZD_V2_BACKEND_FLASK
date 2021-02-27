@@ -152,8 +152,25 @@ def apply_message_required(fn):
     @wraps(fn)
     def wrapper(json):
         json['major'] = json.get('args').get('major')
+        # 지원하는 전공이 없는 경우
         if json['major'] is None:
             return emit('error', websocket.BadRequest('Please send with major'), namespace='/chat')
+        # 일반 유저가 아닌 사람이 사용한 경우인지
+        if json.get('user_type') != 'U':
+            return emit('error', websocket.BadRequest('Only common user use this helper'), namespace='/chat') 
+        # 동아리에 이미 가입한 경우인지
+        if user.is_member(club):
+            return emit('error', websocket.BadRequest('You are already member of this club'), namespace='/chat')
+        # 동아리에 이미 신청한 경우인지
+        if user.is_applicant(club=club, result=False):
+            return emit('error', websocket.BadRequest('You are already apply to this club'), namespace='/chat')
+        # 동아리 지원 기간이 아닌 경우인지
+        if not club.is_recruiting():
+            return emit('error', websocket.BadRequest('Club is not recruiting now!'), namespace='/chat')
+        # 동아리가 모집하는 분야가 아닐 때 경우인지
+        if major is None:
+            return emit('error', websocket.BadRequest('Club does not need '+str(json.get('major'))), namespace='/chat')
+    
         user = User.query.get(json.get('user_id'))
         club = Club.query.get(json.get('club_id'))
         json['title'], json['msg'] = get_apply_message(user, club, json.get('major'))
@@ -185,8 +202,16 @@ def schedule_information_required(fn):
     '''
     @wraps(fn)
     def wrapper(json):
+        # 면접 일정이 없는 경우
         if json.get('args').get('date') is None or json.get('args').get('location') is None:
             return emit('error', websocket.BadRequest('Please send with date and location'), namespace='/chat')
+          # 동아리 장이 아닌 사람이 호출한 경우
+        if json.get('user_type') != 'C':
+            return emit('error', websocket.Forbidden('Only club head use this helper'), namespace='/chat') 
+        # 신청자가 아닌 사람에게 보낸 경우
+        if not user.is_applicant(club, result=False):
+            return emit('error', websocket.BadRequest('The user is not applicant'), namespace='/chat') 
+
         user = Room.query.get(json.get('room_id')).user
         club = Club.query.get(json.get('club_id'))
         json['title'], json['msg'] = get_schedule_message(user, club, json.get('args').get('date'), json.get('args').get('location'))
@@ -215,8 +240,16 @@ def result_required(fn):
     @wraps(fn)
     def wrapper(json):
         json['result'] = json.get('args').get('result')
+        # 면접 결과가 없는 경우
         if json.get('result') is None:
             return emit('error', websocket.BadRequest('Please send with result'), namespace='/chat')
+        # 동아리 장이 아닌 사람이 호출한 경우
+        if json.get('user_type') != 'C':
+            return emit('error', websocket.Forbidden('Only club head use this helper'), namespace='/chat') 
+         # 신청자가 아닌 사람에게 보낸 경우
+        if not user.is_applicant(club, result=False):
+            return emit('error', websocket.BadRequest('The user is not applicant'), namespace='/chat') 
+
         user = Room.query.get(json.get('room_id')).user
         club = Club.query.get(json.get('club_id'))
         json['title'], json['msg'] = get_result_message(user, club, result=json.get('result'))
