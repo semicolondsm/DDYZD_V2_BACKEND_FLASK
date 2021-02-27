@@ -16,7 +16,7 @@ def kstnow():
     return datetime.utcnow()+timedelta(hours=9)
 
 
-class ChatEnum(enum.Enum):
+class UserType(enum.Enum):
     U = 1  # 유저
     C = 2  # 동아리장
     H1 = 3 # 동아리 지원
@@ -39,8 +39,8 @@ class RoomStatus(enum.Enum):
 class Room(db.Model):
     __tablename__ = 'room'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    club_id = db.Column(db.Integer, db.ForeignKey('club.id'))
     user_looked = db.Column(db.Boolean(), default=False)
     club_looked = db.Column(db.Boolean(), default=False)
     status = db.Column(db.Enum(RoomStatus), default=RoomStatus(1))
@@ -78,13 +78,13 @@ class Room(db.Model):
         msg, created_at = self.last_message()
         if is_user:
             club = Club.query.get(self.club_id)
-            id = club.club_id
+            id = club.id
             name = club.name
             image = 'https://api.semicolon.live/file/'+club.profile_image
             isread = self.user_looked
         else:
             user = User.query.get(self.user_id)
-            id = user.user_id
+            id = user.id
             name = user.name
             image = user.image_path
             isread = self.club_looked
@@ -111,7 +111,7 @@ class Chat(db.Model):
     title = db.Column(db.String(512))
     msg = db.Column(db.String(512))
     created_at = db.Column(db.DateTime(6),  default=kstnow)
-    user_type = db.Column(db.Enum(ChatEnum))
+    user_type = db.Column(db.Enum(UserType))
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
 
     def json(self):
@@ -154,8 +154,7 @@ class Club(db.Model):
         '''
         모든 동아리 신청자 반환하는 메서드
         '''
-        return Room.query.join(Application, Room.club_id==Application.club_id).filter_by(id=self.id).filter_by(result=False).all()
-
+        return Room.query.filter_by(club_id=self.id).filter(Room.status != RoomStatus(1)).all()
     def is_recruiting(self):
         '''
         모집 기간인지 확인하는 메서드
@@ -192,8 +191,8 @@ class User(db.Model):
     session_id = db.Column(db.String(256), nullable=True, default=False)
 
     rooms = db.relationship('Room', backref='user', lazy='dynamic')
-    club_heads = db.relationship('ClubHead', backref='club_head_user')
-    applicants = db.relationship('Application', backref='user')
+    club_heads = db.relationship('ClubHead', backref='user')
+    club_members = db.relationship('ClubMember', backref='user')
 
     def get_clubs(self):
         '''
