@@ -84,12 +84,14 @@ def send_alarm(fn):
         room = json.get('room')
         #일반 유저가 메시지를 보낸 경우
         if json.get('user_type') == 'U':
-            send_user = room.user
+            send_user = room.user.name
             recv_user = room.club.club_head[0].user
+            user_type = 'C'
         #동아리장이 메시지를 보낸 경우
         else:
             send_user = room.club.name
             recv_user = room.user
+            user_type = 'U'
 
         # 일반 채팅 메시지인 경우
         if json.get('msg_type') == MsgType(1):
@@ -100,7 +102,8 @@ def send_alarm(fn):
         
         # 채팅방에 join 하지 않은 경우 fcm 알림을 보낸다.
         if not recv_user.is_in_room(room):
-            fcm_alarm(sender=send_user.user, msg=msg, token=recv_user.device_token)
+            fcm_alarm(sender=send_user, msg=msg, token=recv_user.device_token, 
+                room_id=room.id, user_type=user_type)
 
         # title: 보내는 사람 이름 혹은 보내는 동아리 이름
         # msg: 일반 유저인 경우 일반 메시지, 봇인 경우 제목을 전송
