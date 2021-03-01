@@ -81,6 +81,6 @@ def db_setting(flask_app):
         db.session.add(Chat(room_id=1, msg='첫번째 채팅', user_type=UserType(1)))
         db.session.add(Chat(room_id=1, msg='두번째 채팅', user_type=UserType(2)))
         db.session.add(Major(club_id=1, major_name='프론트엔드'))
-        db.session.add(ClubMember(user_id=2, club_id=1))
+        db.session.add(ClubMember(user_id=1, club_id=1))
 
         db.session.commit()

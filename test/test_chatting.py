@@ -79,6 +79,7 @@ def test_make_room(db_setting, flask_client, flask_websocket):
 ## 채팅 내역 불러오기 테스트 ##
 def test_breakdown(flask_client, db_setting):
     resp = flask_client.get('/chat/1/breakdown', headers=jwt_token(1))
+
     assert resp.status_code == 200
     data = resp.data.decode('utf8').replace("'", '"')
     data = json.loads(data)
@@ -117,6 +118,7 @@ def test_room_token(flask_client, db_setting):
 ## 지원자 리스트 반환 테스트 ##
 def test_applicant_list(flask_client, db_setting):
     resp = flask_client.get('/club/1/applicant', headers=jwt_token(1))
+    
     assert resp.status_code == 200
     data = resp.data.decode('utf8').replace("'", '"')
     data = json.loads(data)
