@@ -15,9 +15,10 @@ from app.models import Club
 from app.models import Major
 from app.models import Chat
 from app.models import Room
+from app.models import isoformat
+from app.models import kstnow
 from app import logger
 from app import db
-from datetime import datetime
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_socketio import emit
@@ -34,7 +35,7 @@ def helper_apply(json):
     '''
     room = json.get('room')
     major = Major.query.filter_by(club_id=json.get('club_id'), major_name=json.get('major')).first()
-    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H1'}, room=json.get('room_id'))
+    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H1', 'date': isoformat(kstnow())}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(3)))
     room.status = RoomStatus(2)
     db.session.commit()
@@ -51,7 +52,7 @@ def helper_schedule(json):
     면접 일정을 공지하는 채팅 봇
     '''
     room = json.get('room')
-    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H2'}, room=json.get('room_id'))
+    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H2', 'date': isoformat(kstnow())}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(4)))
     room.status = RoomStatus(3)
     db.session.commit()
@@ -67,7 +68,7 @@ def helper_result(json):
     면접 결과를 공지하는 채팅 봇
     '''
     room = json.get('room')
-    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H3'}, room=json.get('room_id'))
+    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H3', 'date': isoformat(kstnow())}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(5)))
     json.get('room').status = RoomStatus(4) # 합격됨
     room.status = RoomStatus(4)
