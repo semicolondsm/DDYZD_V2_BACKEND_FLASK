@@ -52,7 +52,7 @@ def room_member_required(fn):
         room = Room.query.get_or_404(room_id)
         user = User.query.get_or_404(get_jwt_identity())
         if not user.is_room_member(room):
-            return http.BadRequest("You are not a member for the room: "+str(room.id))
+            return http.BadRequest("You are not a member for the room: "+str(room_id))
         
         return fn(user, room)
     return wrapper
@@ -68,7 +68,7 @@ def club_member_required(fn):
         club = Club.query.get_or_404(club_id)
         user = User.query.get_or_404(get_jwt_identity())
         if not user.is_club_member(club=club):
-            return http.BadRequest("You are not a member for the room: "+str(room.id))
+            return http.BadRequest("You are not a member for the club "+str(club_id))
         
         return fn(user, club)
     return wrapper   
