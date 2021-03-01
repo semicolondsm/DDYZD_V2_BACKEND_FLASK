@@ -176,7 +176,7 @@ class ClubHead(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey('club.id', ondelete='CASCADE'))
 
     def __repr__(self):
-        return '<ClubHead> {},{}'.format(self.club_head_user.name, self.club.name)
+        return '<ClubHead> {},{}'.format(self.user.name, self.club.name)
 
 
 class User(db.Model):

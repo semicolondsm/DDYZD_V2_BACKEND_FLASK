@@ -67,7 +67,7 @@ def club_member_required(fn):
     def wrapper(club_id):
         club = Club.query.get_or_404(club_id)
         user = User.query.get_or_404(get_jwt_identity())
-        if not user.is_member(club=club):
+        if not user.is_club_member(club=club):
             return http.BadRequest("You are not a member for the room: "+str(room.id))
         
         return fn(user, club)
