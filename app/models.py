@@ -246,6 +246,10 @@ class User(db.Model):
         '''
         내가 해당 채팅방의 맴버인지 아는 메서드
         '''
+        if room.user == self:
+            return True
+        if self.is_clubhead(room.club):
+            return True
         return room.user_id == self.id
 
     def is_in_room(self, room):
