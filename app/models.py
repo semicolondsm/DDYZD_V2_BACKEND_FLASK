@@ -49,11 +49,10 @@ class Room(db.Model):
     chats = db.relationship('Chat', backref='room', lazy='dynamic')
 
     def __lt__(self, operand):
-        try:
-            boolean = self.last_message()[1] < operand.last_message()[1]
-        except TypeError:
-            boolean = False
-        return boolean
+        operand1 = self.last_message()[1] if self.last_message()[1] is not None else datetime(1,1,1,1,1,1,1)
+        operand2 = operand.last_message()[1] if operand.last_message()[1] is not None else datetime(1,1,1,1,1,1,1)
+
+        return operand1 < operand2
 
     def read(self, user_type):
         if user_type == 'C':
