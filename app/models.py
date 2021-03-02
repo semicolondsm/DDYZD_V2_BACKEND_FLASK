@@ -7,7 +7,7 @@ import enum
 
 def isoformat(date):
     try:
-        date = date = date.isoformat()[:-7]+'.000+09:00'
+        date = date = date.isoformat()+'.000+09:00'
     except:
         date = None
     return date
