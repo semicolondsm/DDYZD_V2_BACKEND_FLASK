@@ -16,7 +16,7 @@ def fcm_alarm(sender, msg, token, room_id, user_type):
             title=sender,
             body=msg  
         ),
-        data={"room_id": room_id, "user_type": user_type},
+        data={"room_id": str(room_id), "user_type": user_type},
         apns=messaging.APNSConfig(payload=aps),
         token=token
     )
