@@ -69,7 +69,7 @@ def helper_result(json):
     '''
     room = json.get('room')
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H3.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
-    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H3.name)
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H3.name))
     json.get('room').status = RoomStatus(4) # 합격됨
     room.status = RoomStatus(4)
     db.session.commit()
