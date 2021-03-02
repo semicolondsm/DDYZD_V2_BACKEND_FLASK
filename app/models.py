@@ -25,7 +25,7 @@ class UserType(enum.Enum):
     H3 = 5 # 면접 결과
 
  
-class MsgType(enum.Enum):
+class FcmType(enum.Enum):
     C = 1 # 일반 채팅 메시지
     H = 2 # 봇이 보낸 메시지
 
