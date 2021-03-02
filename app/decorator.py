@@ -1,7 +1,9 @@
 from app.errors import websocket
 from app.errors import http
 from app.models import ClubHead 
-from app.models import MsgType
+from app.models import RoomStatus
+from app.models import UserType
+from app.models import FcmType
 from app.models import Room
 from app.models import User
 from app.models import Club
@@ -83,7 +85,7 @@ def send_alarm(fn):
     def wrapper(json):
         room = json.get('room')
         #일반 유저가 메시지를 보낸 경우
-        if json.get('user_type') == 'U':
+        if json.get('user_type') == UserType.U.name:
             send_user = room.user.name
             recv_user = room.club.club_head[0].user
             user_type = 'C'
@@ -94,7 +96,7 @@ def send_alarm(fn):
             user_type = 'U'
 
         # 일반 채팅 메시지인 경우
-        if json.get('msg_type') == MsgType(1):
+        if json.get('fcm_type') == FcmType.C.name:
             msg = json.get('msg')
         # 봇이 보낸 메시지인 경우
         else:
@@ -183,7 +185,7 @@ def apply_message_required(fn):
             return emit('error', websocket.BadRequest('Club does not need '+str(json.get('major'))), namespace='/chat')
     
         json['title'], json['msg'] = get_apply_message(user, club, json.get('major'))
-        json['msg_type'] = MsgType(2)  # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
+        json['fcm_type'] = FcmType.H.name  # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
 
         return fn(json)
     return wrapper
@@ -224,13 +226,13 @@ def schedule_information_required(fn):
             return emit('error', websocket.BadRequest('The user is not applicant'), namespace='/chat') 
 
         json['title'], json['msg'] = get_schedule_message(user, club, json.get('args').get('date'), json.get('args').get('location'))
-        json['msg_type'] = MsgType(2)  # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
+        json['fcm_type'] = FcmType.H.name  # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
     
         return fn(json)
     return wrapper
 
 
-def get_result_message(user, club, result=False):
+def get_result_message(user, club, result):
     if result:
         title = "{user}님 {club} 동아리 합격을 축하드립니다!".format(user=user.name, club=club.name)
         msg = "{user}님의 {club} 동아리 면접결과, 합격을 알려드립니다".format(user=user.name, club=club.name)
@@ -261,11 +263,22 @@ def result_required(fn):
         if not user.is_applicant(club, scheduled=True):
             return emit('error', websocket.BadRequest('The user is not schduled'), namespace='/chat') 
 
-        json['title'], json['msg'] = get_result_message(user, club, result=json.get('result'))
-        json['msg_type'] = MsgType(2) # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
+        json['title'], json['msg'] = get_result_message(user, club, json.get('result'))
+        json['fcm_type'] = FcmType.H.name # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
 
         return fn(json)
     return wrapper 
+
+
+def get_answer_message(user, club, answer):
+    if answer:
+        title = "{name}님이 동아리원이 되었습니다".format(name=user.name)
+        msg = "{club} 동아리원이 되신 것을 진심으로 축하드립니다".format(club=club.name)
+    else:
+        title = "{name}님이 동아리원을 거절했습니다".format(name=user.name)
+        msg = "우린 서로 좋은 인연이 아니였나봐요... 다음에 봐요;"
+
+    return title, msg 
 
 
 def answer_required(fn):
@@ -273,10 +286,22 @@ def answer_required(fn):
     요약: helper_answer 동아리 가입 수락 처리하는 데코레이터
     room_token required로 랩핑 됩니다.
     '''
-    # 면접 결과를 받지 않은 사람의 경우
-    if not user.is_applicant(club, resulted=True):
-        return emit('error', websocket.BadRequest('The user is not resulted'), namespace='/chat') 
+    @wraps(fn)
+    def wrapper(json):
+        user = json.get('room').user
+        club = json.get('club')
+        # 면접 대답이 없는 경우
+        if json.get('answer') is None:
+            return emit('error', websocket.BadRequest('Please send with answer'), namespace='/chat')
+        # 면접 결과를 받지 않은 사람의 경우
+        if not user.is_applicant(club, resulted=True):
+            return emit('error', websocket.BadRequest('The user is not resulted'), namespace='/chat') 
 
+        json['msg'] = get_answer_message(user, club, json.get('answer'))
+
+        return fn(json)
+    return wrapper
+    
 
 def chat_message_required(fn):    
     '''
@@ -289,7 +314,7 @@ def chat_message_required(fn):
         json['msg'] = json.get('args').get('msg')
         if json.get('msg') is None:
             return emit('error', websocket.BadRequest('Please send with message'), namespace='/chat')
-        json['msg_type'] = MsgType(1) # fcm 알림을 보낼 때  일반 채팅 메시지 임을 알려둠
+        json['fcm_type'] = FcmType.C.name # fcm 알림을 보낼 때  일반 채팅 메시지 임을 알려둠
         
         return fn(json)
     return wrapper
