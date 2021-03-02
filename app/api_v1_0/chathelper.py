@@ -2,6 +2,7 @@ from app.decorator import schedule_information_required
 from app.decorator import apply_message_required
 from app.decorator import room_token_required
 from app.decorator import result_required
+from app.decorator import answer_required
 from app.decorator import room_writed
 from app.decorator import send_alarm
 from app.decorator import room_read
@@ -37,8 +38,9 @@ def helper_apply(json):
     major = Major.query.filter_by(club_id=json.get('club_id'), major_name=json.get('major')).first()
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H1.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H1.name))
-    room.status = RoomStatus(2)
+    room.status = RoomStatus.A.name
     db.session.commit()
+
     logger.info('[Helper Apply] - '+ json.get('title'))
 
 
@@ -54,8 +56,9 @@ def helper_schedule(json):
     room = json.get('room')
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H2.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H2.name))
-    room.status = RoomStatus(3)
+    room.status = RoomStatus.S.name
     db.session.commit()
+
     logger.info('[Helper Schedule] - '+ json.get('title'))
 
 
@@ -70,11 +73,29 @@ def helper_result(json):
     room = json.get('room')
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H3.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H3.name))
-    json.get('room').status = RoomStatus(4) # 합격됨
-    room.status = RoomStatus(4)
+    # 면접에 불합격인 사람은 룸상태를 "C"로 변경한다.
+    if json['result'] == False:
+        json['room'].status = RoomStatus.C.name
+    # 면접에 합격인 사람은 룸상태를 "R"로 변경한다.
+    elif json['result'] == True:
+        json['room'].status = RoomStatus.R.name
     db.session.commit()
+
     logger.info('[Helper Result] - '+ json.get('title'))
  
 
+@room_token_required
+@answer_required
+@room_writed
+@send_alarm
 def helper_answer(json):
-    pass
+    '''
+    면접 결과 응답해주는 채팅 봇
+    '''
+    room = json.get('room')
+    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H4.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H4.name))
+    room.status = RoomStatus.C.name
+    db.session.commit()
+
+    logger.info('[Helper Answer] - '+ json.get('title'))

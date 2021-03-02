@@ -23,6 +23,7 @@ class UserType(enum.Enum):
     H1 = 3 # 동아리 지원
     H2 = 4 # 면접 일정
     H3 = 5 # 면접 결과
+    H4 = 6 # 면접 응답
 
  
 class FcmType(enum.Enum):
