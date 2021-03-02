@@ -36,7 +36,7 @@ def helper_apply(json):
     room = json.get('room')
     major = Major.query.filter_by(club_id=json.get('club_id'), major_name=json.get('major')).first()
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H1', 'date': isoformat(kstnow())}, room=json.get('room_id'))
-    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(3)))
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(3).name))
     room.status = RoomStatus(2)
     db.session.commit()
     logger.info('[Helper Apply] - '+ json.get('title'))
@@ -53,7 +53,7 @@ def helper_schedule(json):
     '''
     room = json.get('room')
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H2', 'date': isoformat(kstnow())}, room=json.get('room_id'))
-    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(4)))
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(4).name))
     room.status = RoomStatus(3)
     db.session.commit()
     logger.info('[Helper Schedule] - '+ json.get('title'))
@@ -69,7 +69,7 @@ def helper_result(json):
     '''
     room = json.get('room')
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': 'H3', 'date': isoformat(kstnow())}, room=json.get('room_id'))
-    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(5)))
+    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType(5).name))
     json.get('room').status = RoomStatus(4) # 합격됨
     room.status = RoomStatus(4)
     db.session.commit()
