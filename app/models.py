@@ -226,16 +226,18 @@ class User(db.Model):
         내가 동아리에 신청했는지 아는 메서드
         '''
         room_query = Room.query.filter_by(user_id=self.id).filter_by(club_id=club.id)
+        # 신청자인 경우
         if applicant:
-            return room_query.filter(Room.status==RoomStatus(2)).first()
-
+            return room_query.filter(Room.status==RoomStatus.A.name).first()
+        # 면접 일정을 받은 경우
         if scheduled:
-            return room_query.filter(Room.status==RoomStatus(3)).first()
-            
+            return room_query.filter(Room.status==RoomStatus.S.name).first()
+        # 면접 결과를 받은 경우
         if resulted:
-            return room_query.filter(Room.status==RoomStatus(4)).first()
-
-        return room_query.filter(Room.status!=RoomStatus(1)).first()
+            return room_query.filter(Room.status==RoomStatus.R.name).first()
+        if club.is_recruiting():
+            return room_query.filter(Room.status!=RoomStatus.N.name).first()
+        return room_query.filter(Room.status!=RoomStatus.C.name).first()
 
     def is_club_member(self, club):
         '''

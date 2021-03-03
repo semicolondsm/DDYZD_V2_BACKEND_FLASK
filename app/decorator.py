@@ -49,7 +49,7 @@ def room_member_required(fn):
     rest api에서 사용되는 것은 room_member_required 이고,
     websocket event를 비슷하게 처리하기위해 room_token_required를 사용해야한다.
     '''
-    @wraps(fn)
+    @wraps(fn)      
     def wrapper(room_id):
         room = Room.query.get_or_404(room_id)
         user = User.query.get_or_404(get_jwt_identity())
