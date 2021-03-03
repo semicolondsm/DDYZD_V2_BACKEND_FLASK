@@ -7,7 +7,7 @@ import enum
 
 def isoformat(date):
     try:
-        date = date = date.strftime('%y-%m-%dT%H:%M:%S')+'.000+09:00'
+        date = date = date.strftime('%Y-%m-%dT%H:%M:%S')+'.000+09:00'
     except:
         date = None
     return date
