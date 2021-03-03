@@ -7,6 +7,7 @@ from app.decorator import send_alarm
 from app.decorator import room_read
 from app.errors import websocket
 from app.errors import http
+from app.models import RoomStatus
 from app.models import ClubMember
 from app.models import ClubHead
 from app.models import Club
@@ -72,9 +73,12 @@ def chat_list():
 # 채팅방 만들기
 @jwt_required()
 def make_room(club_id):
-    room = Room.query.filter_by(user_id=get_jwt_identity(), club_id=club_id).first()
+    club = Club.query.get(club_id)
+    room = Room.query.filter_by(user_id=get_jwt_identity(), club_id=club.id).first()
     if room is None:
-        room = Room(user_id=get_jwt_identity(), club_id=club_id)
+        room = Room(user_id=get_jwt_identity(), club_id=club.id)
+        if club.is_recruiting():
+            room.status = RoomStatus.N.name
         db.session.add(room)
         db.session.commit()
 

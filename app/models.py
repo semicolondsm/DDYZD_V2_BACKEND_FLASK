@@ -33,7 +33,7 @@ class FcmType(enum.Enum):
 
 class RoomStatus(enum.Enum):
     C = 1 # 일반 채팅방
-    N = 2 # 동아리 모집
+    N = 2 # 동아리 지원
     A = 3 # 지원자 채팅방
     S = 4 # 면접 일정을 받은 채팅방
     R = 5 # 면접 결과를 받은 채팅방
