@@ -73,9 +73,12 @@ def helper_result(json):
     room = json.get('room')
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H3.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H3.name))
-    # 면접에 불합격인 사람은 룸상태를 "C"로 변경한다.
+    # 면접에 불합격인 사람은 룸상태를 "C" 혹은 "N"으로 변경한다.
     if json['result'] == False:
-        json['room'].status = RoomStatus.C.name
+        if json.get('club').is_recruiting():
+            json['room'].status = RoomStatus.N.name
+        else:    
+            json['room'].status = RoomStatus.C.name
     # 면접에 합격인 사람은 룸상태를 "R"로 변경한다.
     elif json['result'] == True:
         json['room'].status = RoomStatus.R.name
@@ -95,7 +98,10 @@ def helper_answer(json):
     room = json.get('room')
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H4.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H4.name))
-    room.status = RoomStatus.C.name
+    if json.get('club').is_recruiting():
+        json['room'].status = RoomStatus.N.name
+    else:    
+        json['room'].status = RoomStatus.C.name
     db.session.commit()
 
     logger.info('[Helper Answer] - '+ json.get('title'))
