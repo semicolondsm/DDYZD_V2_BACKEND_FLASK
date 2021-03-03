@@ -33,9 +33,10 @@ class FcmType(enum.Enum):
 
 class RoomStatus(enum.Enum):
     C = 1 # 일반 채팅방
-    A = 2 # 지원자 채팅방
-    S = 3 # 면접 일정을 받은 채팅방
-    R = 4 # 면접 결과를 받은 채팅방
+    N = 2 # 동아리 모집
+    A = 3 # 지원자 채팅방
+    S = 4 # 면접 일정을 받은 채팅방
+    R = 5 # 면접 결과를 받은 채팅방
 
 
 class Room(db.Model):
