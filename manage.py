@@ -1,9 +1,15 @@
-from app import create_app
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell
-from app import db
+from app.models import ClubMember
+from app.models import ClubHead
+from app.models import Major
+from app.models import Room
+from app.models import User
+from app.models import Club 
+from app.models import Chat 
+from app import create_app
 from app import websocket
-from app.models import Room, Chat, Club, ClubHead, User, ClubMember, Major
+from app import db
 import os
 
 config = os.getenv('FLASK_CONFIG')
