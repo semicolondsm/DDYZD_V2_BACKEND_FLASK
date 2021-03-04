@@ -8,6 +8,7 @@ from app.models import Room
 from app.models import User
 from app.models import Club
 from app.fcm import fcm_alarm
+from app import logger
 from config import Config
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
@@ -102,9 +103,11 @@ def send_alarm(fn):
             msg = json.get('title')
         
         # 채팅방에 join 하지 않은 경우 fcm 알림을 보낸다.
+        logger.info('fcm start')
         if not recv_user.is_in_room(room):
             fcm_alarm(sender=send_user, msg=msg, token=recv_user.device_token, 
                 room_id=room.id, user_type=user_type)
+        logger.info('fcm end')
 
         # title: 보내는 사람 이름 혹은 보내는 동아리 이름
         # msg: 일반 유저인 경우 일반 메시지, 봇인 경우 제목을 전송
@@ -286,6 +289,7 @@ def answer_required(fn):
     '''
     @wraps(fn)
     def wrapper(json):
+        logger.info('answer required start')
         user = json.get('room').user
         club = json.get('club')
         json['answer'] = json.args.get('answer')
@@ -298,7 +302,8 @@ def answer_required(fn):
 
         json['msg'] = get_answer_message(user, club, json.args.get('answer'))
         json['fcm_type'] = FcmType.H.name # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
-
+        
+        logger.info('answer required end')
         return fn(json)
     return wrapper
     
