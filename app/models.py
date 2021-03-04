@@ -104,7 +104,7 @@ class Room(db.Model):
         }
 
     def __repr__(self):
-        return '<Room> {}'.format(self.id)
+        return '<Room> {} {}'.format(self.club, self.user)
 
 
 class Chat(db.Model):
@@ -237,7 +237,7 @@ class User(db.Model):
             return room_query.filter(Room.status==RoomStatus.R.name).first()
         if club.is_recruiting():
             return room_query.filter(Room.status!=RoomStatus.N.name).first()
-        return room_query.filter(Room.status!=RoomStatus.C.name).first()
+        return room_queryUs.filter(Room.status!=RoomStatus.C.name).first()
 
     def is_club_member(self, club):
         '''
