@@ -24,5 +24,5 @@ async def fcm_alarm(sender, msg, token, room_id, user_type):
     try:
         messaging.send(message)
     except ValueError as e:
-    logger.info("RERERRERERERERREALLY FCM!!!")
         logger.info(e)
+    logger.info("RERERRERERERERREALLY FCM!!!")
