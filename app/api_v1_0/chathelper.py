@@ -41,8 +41,6 @@ def helper_apply(json):
     room.status = RoomStatus.A.name
     db.session.commit()
 
-    logger.info('[Helper Apply] - '+ json.get('title'))
-
 
 # 면접 스케쥴 
 @room_token_required
@@ -58,8 +56,6 @@ def helper_schedule(json):
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H2.name))
     room.status = RoomStatus.S.name
     db.session.commit()
-
-    logger.info('[Helper Schedule] - '+ json.get('title'))
 
 
 @room_token_required
@@ -84,8 +80,6 @@ def helper_result(json):
         json['room'].status = RoomStatus.R.name
     db.session.commit()
 
-    logger.info('[Helper Result] - '+ json.get('title'))
- 
 
 @room_token_required
 @answer_required
@@ -104,4 +98,3 @@ def helper_answer(json):
         json['room'].status = RoomStatus.C.name
     db.session.commit()
 
-    logger.info('[Helper Answer] - '+ json.get('title'))

@@ -148,7 +148,7 @@ def connect():
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
     User.query.get(get_jwt_identity()).session_id = request.sid
     db.session.commit()
-    logger.info('[Socket Connect Successfully]')
+    logger.info('[Socket Connected]')
 
 
 # 방 입장
@@ -157,8 +157,6 @@ def connect():
 def event_join_room(json):
     join_room(json.get('room_id'))
     emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
-    logger.info('[Join Room]')
-
 
 # 채팅 보내기
 @room_token_required
@@ -166,11 +164,9 @@ def event_join_room(json):
 @room_writed
 @send_alarm
 def event_send_chat(json):
-    logger.info("Send Chat: "+str(json))
     emit('recv_chat', {'title': None, 'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': isoformat(kstnow())}, room=json.get('room_id')) 
     db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
-    db.session.commit()   
-    logger.info('[Send Chat] - [{msg}]'.format(msg=json.get('msg')))
+    db.session.commit()
 
 
 # 방 나가기
@@ -179,7 +175,6 @@ def event_send_chat(json):
 def event_leave_room(json):
     leave_room(json.get('room_id'))
     emit('response', {'msg': 'Leave Room Success'}, namespace='/chat')
-    logger.info('[Leave Room]')
 
 
 # 소켓 연결 끊기

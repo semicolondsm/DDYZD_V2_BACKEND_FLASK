@@ -8,7 +8,6 @@ from app.models import Room
 from app.models import User
 from app.models import Club
 from app.fcm import fcm_alarm
-from app import logger
 from config import Config
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
@@ -122,7 +121,6 @@ def room_read(fn):
     '''
     @wraps(fn)
     def wrapper(json):
-        logger.info(Room.query.get(json.get('room_id')))
         room = json.get('room')
         room.read(user_type=json.get('user_type'))
 
