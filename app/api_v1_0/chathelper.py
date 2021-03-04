@@ -89,9 +89,9 @@ def helper_answer(json):
     '''
     면접 결과 응답해주는 채팅 봇
     '''
-    room = json.get('room')
     from app import logger
     logger.info(json)
+    room = json.get('room')
     
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H4.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H4.name))
