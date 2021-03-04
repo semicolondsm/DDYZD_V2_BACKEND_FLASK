@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
-ENTRYPOINT ["gunicorn", "manage:app", "--bind", "0.0.0.0:8888", "-k", "eventlet", "--access-logfile", "./logs/access.log", "--error-logfile", "./logs/error.log", "-w", "1"]
+ENTRYPOINT ["gunicorn", "manage:app", "--bind", "0.0.0.0:8888", "-k", "eventlet", "--access-logfile", "./logs/access.log", "--error-logfile", "./logs/error.log", "-w", "3"]
