@@ -18,7 +18,6 @@ from app.models import Chat
 from app.models import Room
 from app.models import isoformat
 from app.models import kstnow
-from app import logger
 from app import db
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
@@ -89,8 +88,6 @@ def helper_answer(json):
     '''
     면접 결과 응답해주는 채팅 봇
     '''
-    from app import logger
-    logger.info(json)
     room = json.get('room')
     
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H4.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
