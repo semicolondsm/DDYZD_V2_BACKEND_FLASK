@@ -6,22 +6,29 @@ from flask_cors import CORS
 from flask import Flask
 import logging
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+LOG_FORMAT = logging.Formatter("[%(asctime)-15s] (%(filename)s:%(lineno)d) %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.INFO)
+logHandler = logging.FileHandler('./logs/access.log')
+logHandler.setFormatter(LOG_FORMAT)
+logHandler.setLevel(logging.INFO)
 
-file_handler = logging.FileHandler('./logs/access.log')
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
+errHandler = logging.FileHandler('./logs/error.log')
+errHandler.setFormatter(LOG_FORMAT)
+errHandler.setLevel(logging.ERROR)
 
-websocket = SocketIO(cors_allowed_origins='*')
+logger = logging.getLogger('기분')
+logger.addHandler(logHandler)
+logger.addHandler(errHandler)
+
+websocket = SocketIO(async_handlers=True, cors_allowed_origins='*', logger=logger)
 db = SQLAlchemy()
 jwt = JWTManager()
 
 def create_app(config):
     app = Flask(__name__)
     app.config.from_object(configs[config])
-    
+    app.logger = logger
+
     CORS(app)
     db.init_app(app)
     jwt.init_app(app)
