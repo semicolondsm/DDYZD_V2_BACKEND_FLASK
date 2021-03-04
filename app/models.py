@@ -156,7 +156,8 @@ class Club(db.Model):
         '''
         모든 동아리 신청자 반환하는 메서드
         '''
-        return Room.query.filter_by(club_id=self.id).filter(Room.status != RoomStatus(1)).all()
+        return Room.query.filter_by(club_id=self.id).filter(and_(Room.status != RoomStatus.C.name, Room.status != RoomStatus.N.name)).all()
+    
     def is_recruiting(self):
         '''
         모집 기간인지 확인하는 메서드
