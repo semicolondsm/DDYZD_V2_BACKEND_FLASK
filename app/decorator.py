@@ -103,8 +103,8 @@ def send_alarm(fn):
             msg = json.get('title')
         
         # 채팅방에 join 하지 않은 경우 fcm 알림을 보낸다.
-        logger.info('fcm start')
         if not recv_user.is_in_room(room):
+            logger.info('fcm start')
             fcm_alarm(sender=send_user, msg=msg, token=recv_user.device_token, 
                 room_id=room.id, user_type=user_type)
         logger.info('fcm end')
@@ -289,6 +289,7 @@ def answer_required(fn):
     '''
     @wraps(fn)
     def wrapper(json):
+        logger.info('answer required start: '+str(json))
         user = json.get('room').user
         club = json.get('club')
         json['answer'] = json.args.get('answer')
