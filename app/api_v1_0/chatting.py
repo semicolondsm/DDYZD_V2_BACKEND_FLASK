@@ -158,6 +158,7 @@ def event_join_room(json):
     join_room(json.get('room_id'))
     emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
 
+
 # 채팅 보내기
 @room_token_required
 @chat_message_required
