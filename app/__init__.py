@@ -16,7 +16,7 @@ errHandler = logging.FileHandler('./logs/error.log')
 errHandler.setFormatter(LOG_FORMAT)
 errHandler.setLevel(logging.ERROR)
 
-logger = logging.getLogger('기분')
+logger = logging.getLogger('app')
 logger.addHandler(logHandler)
 logger.addHandler(errHandler)
 
