@@ -289,20 +289,24 @@ def answer_required(fn):
     '''
     @wraps(fn)
     def wrapper(json):
+        logger.info('answer required start')
         user = json.get('room').user
         club = json.get('club')
         json['answer'] = json.get('args').get('answer')
-
+        
         # 면접 대답이 없는 경우
         if json.get('answer') is None:
             return emit('error', websocket.BadRequest('Please send with answer'), namespace='/chat')
+        logger.info('answer required start2')
         # 면접 결과를 받지 않은 사람의 경우
         if not user.is_resulted(club):
             return emit('error', websocket.BadRequest('The user is not resulted'), namespace='/chat') 
-        
+        logger.info('answer required start3')
+
         json['msg'] = get_answer_message(user, club, json.args.get('answer'))
         json['fcm_type'] = FcmType.H.name # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
         
+        logger.info('answer required end')
         return fn(json)
     return wrapper
     
