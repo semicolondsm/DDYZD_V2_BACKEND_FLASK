@@ -8,7 +8,6 @@ from app.models import Room
 from app.models import User
 from app.models import Club
 from app.fcm import fcm_alarm
-from app import logger
 from config import Config
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
@@ -105,11 +104,8 @@ def send_alarm(fn):
         
         # 채팅방에 join 하지 않은 경우 fcm 알림을 보낸다.
         if not recv_user.is_in_room(room):
-            logger.info('fcm start')
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(fcm_alarm(sender=send_user, msg=msg, token=recv_user.device_token, 
-                room_id=room.id, user_type=user_type))
-        logger.info('fcm end')
+            asyncio.run((fcm_alarm(sender=send_user, msg=msg, token=recv_user.device_token, 
+                room_id=room.id, user_type=user_type)))
 
         # title: 보내는 사람 이름 혹은 보내는 동아리 이름
         # msg: 일반 유저인 경우 일반 메시지, 봇인 경우 제목을 전송
