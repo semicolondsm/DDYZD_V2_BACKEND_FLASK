@@ -89,14 +89,18 @@ def helper_answer(json):
     '''
     면접 결과 응답해주는 채팅 봇
     '''
-    room = json.get('room')
-    emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H4.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
-    db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H4.name))
-    if json.get('answer'):
-        db.session.add(ClubMember(user_id=json.get('user_id'), club_id=json.get('club_id')))
-    if json.get('club').is_recruiting():
-        json['room'].status = RoomStatus.N.name
-    else:    
-        json['room'].status = RoomStatus.C.name
-    db.session.commit()
+    try:
+        room = json.get('room')
+        emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H4.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
+        db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H4.name))
+        if json.get('answer'):
+            db.session.add(ClubMember(user_id=json.get('user_id'), club_id=json.get('club_id')))
+        if json.get('club').is_recruiting():
+            json['room'].status = RoomStatus.N.name
+        else:    
+            json['room'].status = RoomStatus.C.name
+        db.session.commit()
+    except Exception as e:
+        from app import logger
+        logger.info(e)
 
