@@ -91,6 +91,9 @@ def helper_answer(json):
     '''
     try:
         room = json.get('room')
+        from app import logger
+        logger.info(e)
+        
         emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H4.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
         db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H4.name))
         if json.get('answer'):
