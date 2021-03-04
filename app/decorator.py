@@ -169,8 +169,8 @@ def apply_message_required(fn):
         # 일반 유저가 아닌 사람이 사용한 경우인지
         if json.get('user_type') != 'U':
             return emit('error', websocket.BadRequest('Only common user use this helper'), namespace='/chat') 
-        # 동아리에 이미 신청한 경우인지
-        if user.is_applicant(club):
+        # 동아리 지원 진행중인 경우
+        if user.is_applicant(club) or user.is_scheduled(club) or user.is_resulted(club):
             return emit('error', websocket.BadRequest('You are already apply to this club'), namespace='/chat')
         # 동아리에 이미 가입한 경우인지
         if user.is_club_member(club):
@@ -219,8 +219,8 @@ def schedule_information_required(fn):
           # 동아리 장이 아닌 사람이 호출한 경우
         if json.get('user_type') != 'C':
             return emit('error', websocket.Forbidden('Only club head use this helper'), namespace='/chat') 
-        # 신청자가 아닌 사람에게 보낸 경우
-        if not user.is_applicant(club, applicant=True):
+        # 신청자가 아닌 사용자에게 보낸 경우
+        if not user.is_applicant(club):
             return emit('error', websocket.BadRequest('The user is not applicant'), namespace='/chat') 
 
         json['title'], json['msg'] = get_schedule_message(user, club, json.get('args').get('date'), json.get('args').get('location'))
@@ -258,7 +258,7 @@ def result_required(fn):
         if json.get('user_type') != 'C':
             return emit('error', websocket.Forbidden('Only club head use this helper'), namespace='/chat') 
         # 면접 일정을 보내지 않은 사람에게 보낸 경우
-        if not user.is_applicant(club, scheduled=True):
+        if not user.is_scheduled(club):
             return emit('error', websocket.BadRequest('The user is not schduled'), namespace='/chat') 
 
         json['title'], json['msg'] = get_result_message(user, club, json.get('result'))
@@ -292,7 +292,7 @@ def answer_required(fn):
         if json.get('answer') is None:
             return emit('error', websocket.BadRequest('Please send with answer'), namespace='/chat')
         # 면접 결과를 받지 않은 사람의 경우
-        if not user.is_applicant(club, resulted=True):
+        if not user.is_resulted(club):
             return emit('error', websocket.BadRequest('The user is not resulted'), namespace='/chat') 
 
         json['msg'] = get_answer_message(user, club, json.get('answer'))

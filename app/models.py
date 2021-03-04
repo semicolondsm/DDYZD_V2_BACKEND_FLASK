@@ -222,23 +222,36 @@ class User(db.Model):
         '''
         return ClubHead.query.filter_by(user_id=self.id, club_id=club.id).first()
 
-    def is_applicant(self, club, applicant=False, scheduled=False, resulted=False):
+    def is_applicant(self, club):
         '''
-        내가 동아리에 신청했는지 아는 메서드
+        내 방이 applicant 상태인지 아는 에서드
         '''
         room_query = Room.query.filter_by(user_id=self.id).filter_by(club_id=club.id)
-        # 신청자인 경우
-        if applicant:
-            return room_query.filter(Room.status==RoomStatus.A.name).first()
-        # 면접 일정을 받은 경우
-        if scheduled:
-            return room_query.filter(Room.status==RoomStatus.S.name).first()
-        # 면접 결과를 받은 경우
-        if resulted:
-            return room_query.filter(Room.status==RoomStatus.R.name).first()
+        return room_query.filter(Room.status==RoomStatus.A.name).first()
+
+    def is_scheduled(self, club):
+        '''
+        내 방이 scheduled 상태인지 아는 에서드
+        '''
+        room_query = Room.query.filter_by(user_id=self.id).filter_by(club_id=club.id)
+        return room_query.filter(Room.status==RoomStatus.S.name).first()
+
+    def is_resulted(self, club):
+        '''
+        내 방이 resulted 상태인지 아는 에서드
+        '''
+        room_query = Room.query.filter_by(user_id=self.id).filter_by(club_id=club.id)        
+        return room_query.filter(Room.status==RoomStatus.R.name).first()
+
+    def is_common(self, club):
+        '''
+        내 방이 common 혹은 notified 상태인지 아는 메서드
+        '''
+        room_query = Room.query.filter_by(user_id=self.id).filter_by(club_id=club.id)        
         if club.is_recruiting():
-            return room_query.filter(Room.status!=RoomStatus.N.name).first()
-        return room_queryUs.filter(Room.status!=RoomStatus.C.name).first()
+            return room_query.filter(Room.status!=RoomStatus.N.name).first() 
+        return room_query.filter(Room.status!=RoomStatus.C.name).first()
+
 
     def is_club_member(self, club):
         '''
