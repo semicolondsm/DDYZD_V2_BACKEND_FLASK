@@ -289,13 +289,14 @@ def answer_required(fn):
         user = json.get('room').user
         club = json.get('club')
         # 면접 대답이 없는 경우
-        if json.get('answer') is None:
+        if json.args.get('answer') is None:
             return emit('error', websocket.BadRequest('Please send with answer'), namespace='/chat')
         # 면접 결과를 받지 않은 사람의 경우
         if not user.is_resulted(club):
             return emit('error', websocket.BadRequest('The user is not resulted'), namespace='/chat') 
 
-        json['msg'] = get_answer_message(user, club, json.get('answer'))
+        json['msg'] = get_answer_message(user, club, json.args.get('answer'))
+        json['answer'] = json.args.get('answer')
 
         return fn(json)
     return wrapper

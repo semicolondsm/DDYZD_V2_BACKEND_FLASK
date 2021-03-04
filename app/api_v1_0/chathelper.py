@@ -92,6 +92,8 @@ def helper_answer(json):
     room = json.get('room')
     emit('recv_chat', {'title': json.get('title'), 'msg': json.get('msg'), 'user_type': UserType.H4.name, 'date': isoformat(kstnow())}, room=json.get('room_id'))
     db.session.add(Chat(room_id=json.get('room_id'), title=json.get('title'), msg=json.get('msg'), user_type=UserType.H4.name))
+    if json.get('answer'):
+        db.session.add(ClubMember(user_id=json.get('user-id'), club_id=json.get('club_id')))
     if json.get('club').is_recruiting():
         json['room'].status = RoomStatus.N.name
     else:    
