@@ -289,7 +289,6 @@ def answer_required(fn):
     '''
     @wraps(fn)
     def wrapper(json):
-        logger.info('answer required start)
         user = json.get('room').user
         club = json.get('club')
         json['answer'] = json.get('args').get('answer')
@@ -301,10 +300,9 @@ def answer_required(fn):
         if not user.is_resulted(club):
             return emit('error', websocket.BadRequest('The user is not resulted'), namespace='/chat') 
 
-        json['msg'] = get_answer_message(user, club, json.get('answer'))
+        json['title'], json['msg'] = get_answer_message(user, club, json.get('answer'))
         json['fcm_type'] = FcmType.H.name # fcm 알림을 보낼 때 사용할 봇이 보낸 메시지임을 알려둠
-        
-        logger.info('answer required end')
+
         return fn(json)
     return wrapper
     
