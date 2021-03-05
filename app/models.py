@@ -87,7 +87,7 @@ class Room(db.Model):
         else:
             user = User.query.get(self.user_id)
             id = user.id
-            name = user.name
+            name = user.gcn+user.name
             image = user.image_path
             isread = self.club_looked
 
