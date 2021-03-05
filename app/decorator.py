@@ -26,12 +26,12 @@ def handshake_jwt_required(fn):
     @wraps(fn)
     def wrapper():
         from app import logger
-        logger.info("ARGS: "+str(request.args.get('token')))
         logger.info("HEADERS: "+str(request.headers.get('Authorization')))
+        logger.info("ARGS: "+str(request.args.get('token')))
         if request.args.get('token'):
             token = request.args.get('token') 
         else:
-            token = request.args.get('Authorization')
+            token = request.headers.get('Authorization')
         try:
             payload = jwt.decode(token, Config.JWT_SECRET_KEY, algorithms="HS256")
         except jwt.ExpiredSignatureError:
@@ -348,5 +348,3 @@ def chat_message_required(fn):
         
         return fn(json)
     return wrapper
-
-x
