@@ -26,8 +26,6 @@ def handshake_jwt_required(fn):
     @wraps(fn)
     def wrapper():
         from app import logger
-        logger.info("ARGS: "+str(request.args.get('token')))
-        logger.info("HEADERS: "+str(request.headers.get('Authorization')))
         try:
             if request.args.get('token'):
                 token = request.args.get('token') 
@@ -40,8 +38,8 @@ def handshake_jwt_required(fn):
         except Exception:
             return http.Unauthorized()
 
-        logger.info("PAYLOAD: "+str(payload))
         user = User.query.get_or_404(payload.get('sub'))
+        logger.info("PAYLOAD: "+str(user))
 
         return fn(user)
     return wrapper

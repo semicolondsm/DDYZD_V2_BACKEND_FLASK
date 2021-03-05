@@ -148,6 +148,7 @@ def applicant_list(user, club):
 def connect(user):
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
     user.session_id = request.sid
+    logger.info(str(user)+request.sid)
     db.session.commit()
     logger.info('[Socket Connected]')
 
@@ -177,6 +178,7 @@ def event_send_chat(json):
 def event_leave_room(json):
     leave_room(json.get('room_id'))
     emit('response', {'msg': 'Leave Room Success'}, namespace='/chat')
+    logger.info('[Leave Room]')
 
 
 # 소켓 연결 끊기
