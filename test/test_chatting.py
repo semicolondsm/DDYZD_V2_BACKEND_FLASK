@@ -139,7 +139,7 @@ def test_room_info(flask_client, db_setting):
     data = resp.json
 
     assert data['id'] == '1118'
-    assert data['name'] == '조호원'
+    assert data['name'] == '1118조호원'
     assert data['image'] == 'profile2'
     
     resp = flask_client.get('/room/1/info', headers=jwt_token(2))
