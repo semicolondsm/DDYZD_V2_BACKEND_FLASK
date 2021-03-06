@@ -1,4 +1,3 @@
-from app.decorator import handshake_jwt_required
 from app.decorator import chat_message_required
 from app.decorator import room_member_required
 from app.decorator import club_member_required
@@ -144,11 +143,10 @@ def applicant_list(user, club):
 
 
 # 소켓 연결
-@handshake_jwt_required
-def connect(user):
+@jwt_required()
+def connect():
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
-    user.session_id = request.sid
-    logger.info(str(user)+request.sid)
+    User.query.get(get_jwt_identity()).session_id = request.sid
     db.session.commit()
     logger.info('[Socket Connected]')
 
