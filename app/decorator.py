@@ -26,11 +26,11 @@ def handshake_jwt_required(fn):
     '''
     @wraps(fn)
     def wrapper():
-        if request.args.get('token'):
-            token = request.args.get('token') 
-        else:
-            token = request.headers.get('Authorization')
         try:
+            if request.args.get('token'):
+                token = request.args.get('token') 
+            else:
+                token = request.headers.get('Authorization')[7:]
             payload = jwt.decode(token, Config.JWT_SECRET_KEY, algorithms="HS256")
         except jwt.ExpiredSignatureError:
             return http.Unauthorized("ExpiredSignatureError")
@@ -53,10 +53,10 @@ def room_token_required(fn):
         token = args[0].get('room_token')
         try:
             json = jwt.decode(token, Config.ROOM_SECRET_KEY, algorithms="HS256")
-        except jwt.ExpiredSignatureError as e:
+        except jwt.ExpiredSignatureError:
             return emit('error', websocket.Unauthorized('ExpiredSignatureError'), namespace='/chat')
         except Exception:
-            return emit('error', websocket.Unauthorized(e), namespace='/chat')
+            return emit('error', websocket.Unauthorized(), namespace='/chat')
 
         json['args'] = args[0] # 나머지 argument는 처리하지 않고 'args' 키에 담아 넘겨준다
         json['club'] = Club.query.get(json.get('club_id'))
