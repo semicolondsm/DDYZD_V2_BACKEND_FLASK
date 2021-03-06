@@ -44,6 +44,7 @@ def handshake_jwt_required(fn):
         return fn(user)
     return wrapper
 
+
 def room_token_required(fn):
     '''
     요약: 채팅방 토큰을 요구하는 데코레이터
