@@ -26,9 +26,6 @@ def handshake_jwt_required(fn):
     '''
     @wraps(fn)
     def wrapper():
-        from app import logger
-        logger.info("ARGS: "+str(request.args.get('token')))
-        logger.info("HEADERS: "+str(request.headers.get('Authorization')))
         if request.args.get('token'):
             token = request.args.get('token') 
         else:
@@ -39,8 +36,6 @@ def handshake_jwt_required(fn):
             return http.Unauthorized("ExpiredSignatureError")
         except Exception:
             return http.Unauthorized()
-            
-        logger.info("PAYLOAD: "+str(payload))
         user = User.query.get_or_404(payload.get('sub'))
 
         return fn(user)
