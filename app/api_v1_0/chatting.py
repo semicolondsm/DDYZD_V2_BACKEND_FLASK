@@ -158,9 +158,6 @@ def connect(user):
 def event_join_room(json):
     join_room(json.get('room_id'))
     emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
-    logger.info(str(json.get('user')))
-    logger.info(str(json.get('club')))
-    logger.info(str(json.get('room')))
 
 
 # 채팅 보내기
@@ -180,7 +177,6 @@ def event_send_chat(json):
 def event_leave_room(json):
     leave_room(json.get('room_id'))
     emit('response', {'msg': 'Leave Room Success'}, namespace='/chat')
-    logger.info('[Leave Room]')
 
 
 # 소켓 연결 끊기
