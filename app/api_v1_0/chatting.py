@@ -147,10 +147,9 @@ def applicant_list(user, club):
 @handshake_jwt_required
 def connect(user):
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
-    logger.info(str(user))
     user.session_id = request.sid
     db.session.commit()
-    logger.info('[Socket Connected]')
+    logger.info(str(user)+' [Socket Connected]')
 
 
 # 방 입장
