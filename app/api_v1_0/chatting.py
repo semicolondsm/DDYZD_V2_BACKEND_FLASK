@@ -1,3 +1,4 @@
+from app.decorator import handshake_jwt_required
 from app.decorator import chat_message_required
 from app.decorator import room_member_required
 from app.decorator import club_member_required
