@@ -32,13 +32,14 @@ def handshake_jwt_required(fn):
         if request.args.get('token'):
             token = request.args.get('token') 
         else:
-            token = request.args.get('Authorization')
+            token = request.headers.get('Authorization')
         try:
             payload = jwt.decode(token, Config.JWT_SECRET_KEY, algorithms="HS256")
         except jwt.ExpiredSignatureError:
             return http.Unauthorized("ExpiredSignatureError")
-        except Exception as e:
-                return emit('error', websocket.Unauthorized(e), namespace='/chat')
+        except Exception:
+            return http.Unauthorized()
+            
         logger.info("PAYLOAD: "+str(payload))
         user = User.query.get_or_404(payload.get('sub'))
 
