@@ -133,7 +133,7 @@ def send_alarm(fn):
                 room_id=room.id, user_type=user_type))
             # title: 보내는 사람 이름 혹은 보내는 동아리 이름
             # msg: 일반 유저인 경우 일반 메시지, 봇인 경우 제목을 전송
-            asyncio.run(emit('alarm', {'room_id': str(json.get('room_id'))}, room=recv_user.session_id))
+            emit('alarm', {'room_id': str(json.get('room_id'))}, room=recv_user.session_id)
 
 
         return fn(json)
