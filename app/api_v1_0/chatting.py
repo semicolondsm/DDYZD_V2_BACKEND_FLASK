@@ -146,12 +146,7 @@ def applicant_list(user, club):
 @jwt_required()
 def connect():
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
-<<<<<<< HEAD
-    user.session_id = request.sid
-    logger.info(str(user)+request.sid)
-=======
     User.query.get(get_jwt_identity()).session_id = request.sid
->>>>>>> parent of 6094ae3... UPDATE; handshake jwt required
     db.session.commit()
     logger.info('[Socket Connected]')
 
