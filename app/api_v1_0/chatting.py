@@ -143,10 +143,11 @@ def applicant_list(user, club):
 
 
 # 소켓 연결
-@jwt_required()
-def connect():
+@handshake_jwt_required()
+def connect(user):
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
-    User.query.get(get_jwt_identity()).session_id = request.sid
+    logger.info(str(user))
+    user.session_id = request.sid
     db.session.commit()
     logger.info('[Socket Connected]')
 
@@ -157,6 +158,9 @@ def connect():
 def event_join_room(json):
     join_room(json.get('room_id'))
     emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
+    logger.info(str(json.get('user')))
+    logger.info(str(json.get('club')))
+    logger.info(str(json.get('room')))
 
 
 # 채팅 보내기
