@@ -127,14 +127,14 @@ def send_alarm(fn):
         else:
             msg = json.get('title')
         
-        # 채팅방에 join 하지 않은 경우 fcm 알림을 보낸다.
+        # 채팅방에 join 하지 않은 경우 fcm과 알람을 보낸다.
         if not recv_user.is_in_room(room):
-            asyncio.run((fcm_alarm(sender=send_user, msg=msg, token=recv_user.device_token, 
-                room_id=room.id, user_type=user_type)))
+            asyncio.run(fcm_alarm(sender=send_user, msg=msg, token=recv_user.device_token, 
+                room_id=room.id, user_type=user_type))
+            # title: 보내는 사람 이름 혹은 보내는 동아리 이름
+            # msg: 일반 유저인 경우 일반 메시지, 봇인 경우 제목을 전송
+            asyncio.run(emit('alarm', {'room_id': str(json.get('room_id'))}, room=recv_user.session_id))
 
-        # title: 보내는 사람 이름 혹은 보내는 동아리 이름
-        # msg: 일반 유저인 경우 일반 메시지, 봇인 경우 제목을 전송
-        emit('alarm', {'room_id': str(json.get('room_id'))}, room=recv_user.session_id)
 
         return fn(json)
     return wrapper
