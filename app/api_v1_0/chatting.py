@@ -144,7 +144,7 @@ def applicant_list(user, club):
 
 
 # 소켓 연결
-@handshake_jwt_required()
+@handshake_jwt_required
 def connect(user):
     emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
     logger.info(str(user))
