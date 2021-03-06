@@ -17,32 +17,6 @@ from flask import request
 import asyncio
 import jwt
 
-def handshake_jwt_required(fn):
-    '''
-    요약: 핸드쉐이크시 jwt 토큰 인증하는 데코레이터
-    Web의 경우 Authorization 헤더를 보낼 수 없기 때문에 url query로 토큰을 보낸다.
-    하지만 앱(안드로이드, iOS)의 경우에는 헤더에서 토큰을 받는다.
-    '''
-    @wraps(fn)
-    def wrapper():
-        from app import logger
-        try:
-            if request.args.get('token'):
-                token = request.args.get('token') 
-            else:
-                token = request.headers.get('Authorization')[7:]
-            
-            payload = jwt.decode(token, Config.JWT_SECRET_KEY, algorithms="HS256")
-        except jwt.ExpiredSignatureError:
-            return http.Unauthorized("ExpiredSignatureError")
-        except Exception:
-            return http.Unauthorized()
-
-        user = User.query.get_or_404(payload.get('sub'))
-        logger.info("PAYLOAD: "+str(user))
-
-        return fn(user)
-    return wrapper
 
 def room_token_required(fn):
     '''
@@ -55,11 +29,16 @@ def room_token_required(fn):
         token = args[0].get('room_token')
         try:
             json = jwt.decode(token, Config.ROOM_SECRET_KEY, algorithms="HS256")
-        except jwt.ExpiredSignatureError:
+        except jwt.ExpiredSignatureError as e:
             return emit('error', websocket.Unauthorized('ExpiredSignatureError'), namespace='/chat')
+<<<<<<< HEAD
         except Exception:
             return emit('error', websocket.Unauthorized(e), namespace='/chat')
 
+=======
+        except Exception as e:
+            return emit('error', websocket.Unauthorized(), namespace='/chat')
+>>>>>>> parent of 6094ae3... UPDATE; handshake jwt required
         json['args'] = args[0] # 나머지 argument는 처리하지 않고 'args' 키에 담아 넘겨준다
         json['club'] = Club.query.get(json.get('club_id'))
         json['user'] = User.query.get(json.get('user_id'))
