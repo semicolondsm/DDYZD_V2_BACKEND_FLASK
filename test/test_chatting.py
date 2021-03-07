@@ -1,4 +1,3 @@
-from app import db
 from conftest import jwt_token
 from config import Config
 import json
