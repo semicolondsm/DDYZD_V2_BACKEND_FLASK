@@ -8,13 +8,8 @@ import smtplib
 import os
 
 env = Environment(
-    import app
-    app.logger.info('{}/templates'.format(os.path.dirname(__file__)))
     loader=FileSystemLoader('{}/templates'.format(os.path.dirname(__file__)))
 )
-smtp = smtplib.SMTP('smtp.gmail.com', 587)
-smtp.starttls()
-smtp.login(os.getenv('MAIL_ID'), os.getenv('MAIL_PW'))
 
 
 def render_template(template, **kwargs):
@@ -24,6 +19,10 @@ def render_template(template, **kwargs):
 
 
 async def send_mail(feed, reason):
+    smtp = smtplib.SMTP('smtp.gmail.com', 587)
+    smtp.starttls()
+    smtp.login(os.getenv('MAIL_ID'), os.getenv('MAIL_PW'))
+    
     from_email = 'semicolondsm@gmail.com'
     to_email = 'semicolondsm@gmail.com'
     subject = '피드 신고 피드백'
