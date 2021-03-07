@@ -1,0 +1,23 @@
+<h1>{{feed.club.name}} 피드 신고 피드백</h1>
+{{feed.club.name}}의 {{feed.club.id}}번 피드에 신고가 접수 되었습니다.
+<br>
+
+<br>
+<h2>신고 사유</h2>
+<div class="reason">
+    {{reason}}<br>
+</div>
+<br>
+<h2>{{feed.club.name}} 정보</h2>
+<div class="club_head">
+    동아리장(학번): {{feed.club.club_head.gcn}}<br>
+    동아리장(이름): {{feed.club.club_head.name}}<br>
+    동아리장(이메일): {{feed.club.club_head.email}}<br>
+</div>
+<br>
+<h2>{{feed.id}}번 피드 정보</h2>
+<div class="feed">
+    컨텐츠 작성 날짜: {{feed.upload_at}}<br>
+    컨텐츠 내용: {{feed.contents}}<br>
+</div>
+<br>
