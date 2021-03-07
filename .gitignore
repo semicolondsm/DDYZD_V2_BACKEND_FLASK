@@ -132,4 +132,5 @@ dmypy.json
 .vscode/
 *.env
 *.sqlite
+config.py
 ddyzd-firebase-adminsdk.json
