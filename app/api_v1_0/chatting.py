@@ -1,32 +1,19 @@
-from app.decorator import handshake_jwt_required
-from app.decorator import chat_message_required
 from app.decorator import room_member_required
 from app.decorator import club_member_required
-from app.decorator import room_token_required
-from app.decorator import room_writed
-from app.decorator import send_alarm
-from app.decorator import room_read
-from app.errors import websocket
-from app.errors import http
 from app.models import RoomStatus
-from app.models import ClubMember
 from app.models import ClubHead
 from app.models import Club
 from app.models import Chat
 from app.models import User
 from app.models import Room
-from app.models import isoformat 
 from app.models import kstnow
+from app import error
 from app import db
-from app import logger
 from config import Config
 from datetime import datetime
 from datetime import timedelta
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
-from flask_socketio import leave_room
-from flask_socketio import join_room
-from flask_socketio import emit
 from flask import request
 import json
 import jwt
@@ -43,7 +30,7 @@ def chat_list():
     if club_id:
         club = Club.query.get_or_404(club_id)
         if not user.is_clubhead(club):
-            return http.BadRequest('You do not have permission')
+            return error.BadRequest('You do not have permission')
         for r in club.rooms:
             rooms.append(r.json(is_user=False, index=index))
 
@@ -141,44 +128,3 @@ def applicant_list(user, club):
         rooms.append(r.json(is_user=False))
 
     return json.dumps(rooms), 200 
-
-
-# 소켓 연결
-@handshake_jwt_required
-def connect(user):
-    emit('response', {'msg': 'Socket Connect Successfully'}, namespace='/chat')
-    user.session_id = request.sid
-    db.session.commit()
-    logger.info(str(user)+' [Socket Connected]')
-
-
-# 방 입장
-@room_token_required
-@room_read
-def event_join_room(json):
-    join_room(json.get('room_id'))
-    emit('response', {'msg': 'Join Room Success'}, namespace='/chat')
-
-
-# 채팅 보내기
-@room_token_required
-@chat_message_required
-@room_writed
-@send_alarm
-def event_send_chat(json):
-    emit('recv_chat', {'title': None, 'msg': json.get('msg'), 'user_type': json.get('user_type'), 'date': isoformat(kstnow())}, room=json.get('room_id')) 
-    db.session.add(Chat(room_id=json.get('room_id'), msg=json.get('msg'), user_type=json.get('user_type')))
-    db.session.commit()
-
-
-# 방 나가기
-@room_token_required
-@room_read
-def event_leave_room(json):
-    leave_room(json.get('room_id'))
-    emit('response', {'msg': 'Leave Room Success'}, namespace='/chat')
-
-
-# 소켓 연결 끊기
-def disconnect():
-    logger.info('[Socket Disconnected]')
