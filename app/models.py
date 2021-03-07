@@ -74,6 +74,7 @@ class Room(db.Model):
         chat = self.chats.order_by(Chat.created_at.desc()).first()
         msg = chat.msg if chat is not None else None
         created_at = chat.created_at if chat is not None else None
+        
         return msg, created_at 
 
     def json(self, is_user, index=0):

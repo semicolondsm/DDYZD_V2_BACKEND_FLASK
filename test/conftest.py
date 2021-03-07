@@ -7,7 +7,6 @@ from app.models import Chat
 from app.models import Club
 from app.models import User
 from app import create_app
-from app import websocket
 from app import db
 from config import Config
 from datetime import datetime
@@ -23,12 +22,6 @@ def jwt_token(sub=1):
     token = jwt.encode({"sub": sub}, os.getenv("SECRET"), algorithm="HS256")
     headers = {'Authorization': 'Bearer '+ token}
     return headers
-
-
-def room_token(user_id=1, room_id=1, club_id=1, user_type='C'):
-    token = jwt.encode({"room_id": room_id, 'user_id': user_id, "user_type": user_type, \
-        "exp": datetime.now()+timedelta(days=1), 'club_id': club_id}, Config.ROOM_SECRET_KEY, algorithm="HS256")
-    return token
 
 
 @pytest.fixture(scope='session')
@@ -48,21 +41,6 @@ def flask_app():
 @pytest.fixture(scope='session')
 def flask_client(flask_app):
     return flask_app.test_client()
-
-
-@pytest.fixture(scope='session')
-def flask_websocket(flask_app, flask_client):
-    # 웹 소켓 테스트 클라이언트 생성
-    flask_websocket = websocket.test_client(flask_app, flask_test_client=flask_client)
-    # 웹 소켓 연결
-    flask_websocket.connect('/chat', headers=jwt_token(1))
-    recv = flask_websocket.get_received(namespace='/chat')[0]
-    assert recv['args'][0]['msg'] == 'Socket Connect Successfully'
-    
-    yield flask_websocket
-    
-    # 웹 소켓 연결 끊기 
-    flask_websocket.disconnect(namespace='/chat')
 
 
 ## 더미 데이터 세팅 ## 

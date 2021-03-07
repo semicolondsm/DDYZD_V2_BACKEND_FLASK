@@ -8,7 +8,6 @@ from app.models import User
 from app.models import Club 
 from app.models import Chat 
 from app import create_app
-from app import websocket
 from app import db
 import os
 
@@ -29,7 +28,4 @@ manager.add_command('shell', Shell(make_context=make_shell_context))
 
 
 if __name__ == '__main__':
-    if config == 'production':
-        websocket.run(app, host='0.0.0.0', port=8888)
-    else:
         manager.run()
