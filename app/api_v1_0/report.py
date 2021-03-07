@@ -8,6 +8,8 @@ import smtplib
 import os
 
 env = Environment(
+    import app
+    app.logger.info('{}/templates'.format(os.path.dirname(__file__)))
     loader=FileSystemLoader('{}/templates'.format(os.path.dirname(__file__)))
 )
 smtp = smtplib.SMTP('smtp.gmail.com', 587)
