@@ -7,6 +7,7 @@ from app.models import Room
 from app.models import User
 from app.models import Club 
 from app.models import Chat 
+from app.models import Feed 
 from app import create_app
 from app import db
 import os
@@ -21,7 +22,7 @@ manager = Manager(app)
 
 def make_shell_context():
     return dict(app=app, db=db, Room=Room, Chat=Chat, ClubMember=ClubMember, 
-                Club=Club, ClubHead=ClubHead, User=User, Major=Major)
+                Club=Club, ClubHead=ClubHead, User=User, Major=Major, Feed=Feed)
 
 manager.add_command('db', MigrateCommand)
 manager.add_command('shell', Shell(make_context=make_shell_context))
