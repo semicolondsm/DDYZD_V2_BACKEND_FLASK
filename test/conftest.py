@@ -6,6 +6,7 @@ from app.models import Room
 from app.models import Chat 
 from app.models import Club
 from app.models import User
+from app.models import Feed
 from app import create_app
 from app import db
 from config import Config
@@ -60,5 +61,6 @@ def db_setting(flask_app):
         db.session.add(Chat(room_id=1, msg='두번째 채팅', user_type=UserType(2)))
         db.session.add(Major(club_id=1, major_name='프론트엔드'))
         db.session.add(ClubMember(user_id=1, club_id=1))
+        db.session.add(Feed(club_id=1, contents="헬로우 월드"))
 
         db.session.commit()
