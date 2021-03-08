@@ -115,6 +115,7 @@ class Chat(db.Model):
     msg = db.Column(db.String(512))
     created_at = db.Column(db.DateTime(6),  default=kstnow)
     user_type = db.Column(db.Enum(UserType))
+    result = db.Column(db.Boolean(), default=None)
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
 
     def json(self):
@@ -122,6 +123,7 @@ class Chat(db.Model):
             "title": self.title,
             "msg": self.msg,
             "user_type": self.user_type.name,
+            "result": self.result,
             "created_at": isoformat(self.created_at)
         }
 
