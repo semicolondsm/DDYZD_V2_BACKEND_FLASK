@@ -1,5 +1,5 @@
 from app.decorator import room_member_required
-from app.decorator import club_member_required
+from app.decorator import club_head_required
 from app.models import RoomStatus
 from app.models import ClubHead
 from app.models import Club
@@ -121,7 +121,7 @@ def room_refresh(user, room):
 
 # 지원자 리스트 반환
 @jwt_required()
-@club_member_required
+@club_head_required
 def applicant_list(user, club):
     rooms = []
     for r in club.get_all_applicant_room():

@@ -30,16 +30,16 @@ def room_member_required(fn):
     return wrapper
 
 
-def club_member_required(fn):
+def club_head_required(fn):
     '''
-    요약: 동아리 맴버인지 확인하는 데코레이터 
+    요약: 동아리 장인지 확인하는 데코레이터 
     applicant_list에서 사용한다.
     '''
     @wraps(fn)
     def wrapper(club_id):
         club = Club.query.get_or_404(club_id)
         user = User.query.get_or_404(get_jwt_identity())
-        if not user.is_club_member(club=club):
+        if not user.is_clubhead(club=club):
             return error.BadRequest("You are not a member for the club "+str(club_id))
         
         return fn(user, club)
