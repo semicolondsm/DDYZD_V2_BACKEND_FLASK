@@ -98,7 +98,7 @@ class Room(db.Model):
 		    "id" : str(id),
 		    "name" : name,
 		    "image" : image,
-		    "lastdate" :  isoformat(self.last_date),
+		    "lastdate" :  isoformat(self.last_date if self.last_date is not None else datetime(1,1,1,1,1,1,1)),
 		    "lastmessage" : self.last_message,
             "isread": isread,
             "status": self.status.name,
