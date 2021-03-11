@@ -1,3 +1,5 @@
+from app.models import isoformat
+from app.models import kstnow
 from app.models import ClubMember
 from app.models import ClubHead
 from app.models import UserType 
@@ -12,11 +14,11 @@ from app import db
 from config import Config
 from datetime import datetime
 from datetime import timedelta
-from dotenv import load_dotenv
+from dotenv import find_dotenv
 import jwt
 import os
 import pytest
-load_dotenv()
+find_dotenv('ddyzd.env')
 
 
 def jwt_token(sub=1):
@@ -54,11 +56,16 @@ def db_setting(flask_app):
         db.session.add(User(name='성예인', gcn='1110', image_path='profile4'))
         db.session.add(Club(name='세미콜론', total_budget=3000, current_budget=2000, banner_image='banner image', hongbo_image='hongbo image', profile_image='profile_image', start_at=datetime.now()-timedelta(days=1), close_at=datetime.now()+timedelta(days=1)))
         db.session.add(ClubHead(user_id=1, club_id=1))
-        db.session.add(Room(id=1, user_id=2, club_id=1))
-        db.session.add(Room(id=2, user_id=3, club_id=1, status='A'))
-        db.session.add(Room(id=3, user_id=4, club_id=1))
+        r1 = Room(id=1, user_id=2, club_id=1)
+        r2 = Room(id=2, user_id=3, club_id=1, status='A')
+        r3 = Room(id=3, user_id=4, club_id=1)
+        db.session.add(r1)
+        db.session.add(r2)
+        db.session.add(r3)
         db.session.add(Chat(room_id=1, msg='첫번째 채팅', user_type=UserType(1)))
+        r1.update_room_message('첫번째 채팅', kstnow())
         db.session.add(Chat(room_id=1, msg='두번째 채팅', user_type=UserType(2)))
+        r1.update_room_message('두번째 채팅', kstnow())
         db.session.add(Major(club_id=1, major_name='프론트엔드'))
         db.session.add(ClubMember(user_id=1, club_id=1))
         db.session.add(Feed(club_id=1, contents="헬로우 월드"))
