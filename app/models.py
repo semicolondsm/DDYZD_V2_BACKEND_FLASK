@@ -47,12 +47,14 @@ class Room(db.Model):
     user_looked = db.Column(db.Boolean(), default=False)
     club_looked = db.Column(db.Boolean(), default=False)
     status = db.Column(db.Enum(RoomStatus), default=RoomStatus(1))
+    last_message = db.Column(db.String(512))
+    last_date = db.Column(db.DateTime(6))
 
     chats = db.relationship('Chat', backref='room', lazy='dynamic')
 
-    def __lt__(self, operand):
-        operand1 = self.last_message()[1] if self.last_message()[1] is not None else datetime(1,1,1,1,1,1,1)
-        operand2 = operand.last_message()[1] if operand.last_message()[1] is not None else datetime(1,1,1,1,1,1,1)
+    def __lt__(self, operand):  
+        operand1 = self.last_date if self.last_date is not None else datetime(1,1,1,1,1,1,1)
+        operand2 = operand.last_date if operand.last_date is not None else datetime(1,1,1,1,1,1,1)
 
         return operand1 < operand2
 
@@ -70,15 +72,14 @@ class Room(db.Model):
             self.club_looked = False
         db.session.commit()
 
-    def last_message(self):
-        chat = self.chats.order_by(Chat.created_at.desc()).first()
-        msg = chat.msg if chat is not None else None
-        created_at = chat.created_at if chat is not None else None
-        
-        return msg, created_at 
+    def update_room_message(self, msg, date, status=None):
+        self.last_message = msg
+        self.last_date = date
+        if status is not None:
+            self.status = status
+        db.session.commit()
 
     def json(self, is_user, index=0):
-        msg, created_at = self.last_message()
         if is_user:
             club = Club.query.get(self.club_id)
             id = club.id
@@ -97,8 +98,8 @@ class Room(db.Model):
 		    "id" : str(id),
 		    "name" : name,
 		    "image" : image,
-		    "lastdate" :  isoformat(created_at),
-		    "lastmessage" : msg,
+		    "lastdate" :  isoformat(self.last_date if self.last_message is None else datetime(1,1,1,1,1,1,1)),
+		    "lastmessage" : self.last_message,
             "isread": isread,
             "status": self.status.name,
             "index": index
