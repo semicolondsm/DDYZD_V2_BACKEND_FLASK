@@ -31,7 +31,11 @@ def chat_list():
         club = Club.query.get_or_404(club_id)
         if not user.is_clubhead(club):
             return error.BadRequest('You do not have permission')
-        for r in club.rooms:
+        
+        # 채팅방 정렬
+        rs = club.rooms
+        rs.sort(reverse=True)
+        for r in rs:
             rooms.append(r.json(is_user=False, index=index))
 
         return {"club_section": club.name, "rooms": rooms}, 200
