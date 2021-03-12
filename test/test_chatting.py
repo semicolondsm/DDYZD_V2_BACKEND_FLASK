@@ -113,7 +113,7 @@ def test_applicant_list(flask_client, db_setting):
     assert data[0]['id'] == '3'
     assert data[0]['name'] == '1413안은결'
     assert data[0]['image'] == 'profile3'
-    assert data[0]['lastdate'] == '0001-01-01T01:01:01.000+09:00'
+    assert data[0]['lastdate'] != None
     assert data[0]['lastmessage'] == None
     assert data[0]['index'] == 0
     
