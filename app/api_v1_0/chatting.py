@@ -28,12 +28,12 @@ def chat_list():
     index = 0
     # club_id 파라미터가 있을 때 
     if club_id:
-        club = Club.query.get_or_404(club_id).all()
+        club = Club.query.get_or_404(club_id)
         if not user.is_clubhead(club):
             return error.BadRequest('You do not have permission')
         
         # 채팅방 정렬
-        rs = club.rooms.join(Chat, Chat.room_id==Room.id)
+        rs = club.rooms.join(Chat, Chat.room_id==Room.id).all()
         rs.sort(reverse=True)
         for r in rs:
             rooms.append(r.json(is_user=False, index=index))
