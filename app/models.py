@@ -146,7 +146,7 @@ class Club(db.Model):
     description = db.Column(db.String(255))
 
     club_head = db.relationship('ClubHead', backref='club')
-    rooms = db.relationship('Room', backref='club')
+    rooms = db.relationship('Room', backref='club', lazy='dynamic')
     majors = db.relationship('Major', backref='club')
 
     def __lt__(self, operand):
