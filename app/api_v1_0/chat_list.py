@@ -21,8 +21,8 @@ def chat_list():
         if not user.is_clubhead(club):
             return error.BadRequest('You do not have permission')
         
-        # 채팅방 정렬
         rs = club.rooms.join(Chat, Chat.room_id==Room.id).all()
+        # 채팅방 정렬
         rs.sort(reverse=True)
         for r in rs:
             rooms.append(r.json(is_user=False, index=index))
