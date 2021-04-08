@@ -1,13 +1,13 @@
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell
-from app.models import ClubMember
-from app.models import ClubHead
-from app.models import Major
-from app.models import Room
-from app.models import User
-from app.models import Club 
-from app.models import Chat 
-from app.models import Feed 
+from app.models.club import ClubMember
+from app.models.club import ClubHead
+from app.models.club import Major
+from app.models.club import Club
+from app.models.chat import Room
+from app.models.chat import Chat
+from app.models.user import User
+from app.models.feed import Feed 
 from app import create_app
 from app import db
 import os
