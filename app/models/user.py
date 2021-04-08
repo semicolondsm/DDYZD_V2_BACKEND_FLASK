@@ -1,5 +1,6 @@
 from app.models.type import RoomType
 from app import db
+from flask_socketio import rooms
 
 class User(db.Model):
     __tablename__ = 'user'
