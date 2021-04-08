@@ -1,4 +1,4 @@
-from app.decorator import room_member_required
+from app.decorator.room_member_required import room_member_required
 from flask_jwt_extended import jwt_required
 
 # 채팅방 리프레시

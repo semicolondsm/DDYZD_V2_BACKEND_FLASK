@@ -1,4 +1,4 @@
-from app.decorator import club_head_required
+from app.decorator.club_head_required import club_head_required
 from flask_jwt_extended import jwt_required
 import json
 

@@ -1,7 +1,7 @@
 from config import Config
+from app.decorator.room_member_required import room_member_required
 from app.models import kstnow
 from app.models import timedelta
-from app.decorator import room_member_required
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 import jwt
