@@ -1,6 +1,6 @@
-from app.models import RoomStatus
-from app.models import Club
-from app.models import Room
+from app.models.type import RoomType
+from app.models.club import Club
+from app.models.chat import Room
 from app import db
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
@@ -15,7 +15,7 @@ def make_room(club_id):
     if room is None:
         room = Room(user_id=get_jwt_identity(), club_id=club.id)
         if club.is_recruiting():
-            room.status = RoomStatus.N.name
+            room.status = RoomType.N.name
         db.session.add(room)
         db.session.commit()
 

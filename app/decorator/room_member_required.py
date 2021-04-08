@@ -1,5 +1,5 @@
-from app.models import Room
-from app.models import User
+from app.models.chat import Room
+from app.models.user import User
 from app import error
 from config import Config
 from flask_jwt_extended import get_jwt_identity

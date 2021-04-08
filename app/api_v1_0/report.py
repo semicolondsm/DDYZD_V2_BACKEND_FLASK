@@ -1,4 +1,4 @@
-from app.models import Feed
+from app.models.feed import Feed
 from email.mime.text import MIMEText
 from flask import request
 from jinja2 import FileSystemLoader

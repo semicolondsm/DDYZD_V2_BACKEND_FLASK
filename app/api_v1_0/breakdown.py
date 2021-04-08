@@ -1,5 +1,5 @@
 from app.decorator.room_member_required import room_member_required
-from app.models import Chat
+from app.models.chat import Chat
 from flask_jwt_extended import jwt_required
 import json
 

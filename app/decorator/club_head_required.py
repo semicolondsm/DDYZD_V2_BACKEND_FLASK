@@ -1,5 +1,5 @@
-from app.models import User
-from app.models import Club
+from app.models.user import User
+from app.models.club import Club
 from app import error
 from flask_jwt_extended import get_jwt_identity
 from functools import wraps
