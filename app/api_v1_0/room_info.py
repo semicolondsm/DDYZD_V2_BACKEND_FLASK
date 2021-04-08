@@ -1,4 +1,4 @@
-from app.decorators import room_member_required
+from app.decorator import room_member_required
 from flask_jwt_extended import jwt_required
 
 

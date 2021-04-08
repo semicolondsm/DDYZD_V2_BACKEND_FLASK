@@ -1,6 +1,6 @@
 from app.models import Chat
+from app.decorator import room_member_required
 from flask_jwt_extended import jwt_required
-from flask_jwt_extended import room_member_required
 import json
 
 # 채팅 내역 보기
