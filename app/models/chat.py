@@ -16,6 +16,8 @@ class Room(db.Model):
     status = db.Column(db.Enum(RoomType), default=RoomType(1))
     last_message = db.Column(db.String(512))
     last_date = db.Column(db.DateTime(6))
+    c_offset = db.Column(db.Integer, default=0)
+    u_offset = db.Column(db.Integer, default=0)
 
     chats = db.relationship('Chat', backref='room', lazy='dynamic')
 
@@ -26,14 +28,14 @@ class Room(db.Model):
         return operand1 < operand2
 
     def read(self, user_type):
-        if user_type == 'C':
+        if user_type == UserType.C.name:
             self.club_looked = True
         else:
             self.user_looked = True
         db.session.commit()
             
     def writed(self, user_type):
-        if user_type == 'C':
+        if user_type ==  UserType.C.name:
             self.user_looked = False
         else:
             self.club_looked = False
@@ -45,6 +47,26 @@ class Room(db.Model):
         if status is not None:
             self.status = status
         db.session.commit()
+
+    def delete_chats(self, user_type):
+        if user_type == UserType.C.name:
+            self.c_offset = self.chats.count()
+        else:
+            self.u_offset = self.chats.count()
+        db.session.commit()
+
+    def breakdown(self, user):
+        chat_ordered_query = self.chats.order_by(Chat.created_at.desc())
+        if user.is_user(self):
+            cs = chat_ordered_query.offset(self.u_offset)
+        else:
+            cs = chat_ordered_query.offset(self.c_offset)
+        
+        chats = []
+        for c in cs:
+            chats.append(c.json())
+
+        return chats
 
     def json(self, is_user, index=0):
         from app.models.user import User
