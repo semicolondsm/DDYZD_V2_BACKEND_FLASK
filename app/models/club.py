@@ -34,6 +34,16 @@ class Club(db.Model):
         '''
         return Room.query.filter_by(club_id=self.id).filter(Room.status != RoomType.C.name).filter(Room.status != RoomType.N.name).all()
     
+    def select_rooms(self):
+        rs = self.rooms.all()
+        rooms = []
+        for r in rs:
+            if r.chats.offset(r.c_offset).count() != 0:
+                rooms.append(r)
+
+        return rooms
+            
+         
     def is_recruiting(self):
         '''
         모집 기간인지 확인하는 메서드
