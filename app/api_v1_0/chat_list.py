@@ -21,7 +21,7 @@ def chat_list():
         if not user.is_clubhead(club):
             return error.BadRequest('You do not have permission')
         
-        rs = club.rooms.join(Chat, Chat.room_id==Room.id).all()
+        rs = club.select_rooms()
         # 채팅방 정렬
         rs.sort(reverse=True)
         for r in rs:
@@ -35,7 +35,7 @@ def chat_list():
             club_section.append(club.name)
 
         # 유저 권한의 채팅방 검색
-        rs = user.rooms.all()
+        rs = user.select_rooms()
         rs.sort(reverse=True)
         for r in rs:
             rooms.append(r.json(is_user=True, index=index))
@@ -43,9 +43,8 @@ def chat_list():
         # 동아리장 권한의 채팅방 검색
         for c in user.get_clubs():
             index = index + 1
-            rs = c.rooms.join(Chat, Chat.room_id==Room.id).all()
+            rs = c.select_rooms()
             rs.sort(reverse=True)
             for r in rs:
                 rooms.append(r.json(is_user=False, index=index))
-
         return {"club_section": club_section, "rooms": rooms}, 200
