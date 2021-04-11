@@ -1,4 +1,4 @@
-from test.conftest import jwt_token
+from conftest import jwt_token
 
 ## 방 만들기 테스트 ##
 def test_make_room(db_setting, flask_client):

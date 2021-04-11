@@ -1,4 +1,4 @@
-from test.conftest import jwt_token
+from conftest import jwt_token
 from app.models.chat import Room
 from app.models.user import User
 from app.models.type import UserType

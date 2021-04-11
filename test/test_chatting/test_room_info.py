@@ -1,5 +1,5 @@
 
-from test.conftest import jwt_token
+from conftest import jwt_token
 
 ## 채팅방 정보 반환 테스트##
 def test_room_info(flask_client, db_setting):

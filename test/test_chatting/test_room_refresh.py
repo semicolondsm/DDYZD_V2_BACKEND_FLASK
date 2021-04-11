@@ -1,4 +1,4 @@
-from test.conftest import jwt_token
+from conftest import jwt_token
 
 ## 채팅방 리프레시 테스트 ##
 def test_room_refresh(flask_client, db_setting):

@@ -1,4 +1,4 @@
-from test.conftest import jwt_token
+from conftest import jwt_token
 from config import Config
 import jwt
 

@@ -1,4 +1,4 @@
-from test.conftest import jwt_token
+from conftest import jwt_token
 import json
 
 ## 지원자 리스트 반환 테스트 ##

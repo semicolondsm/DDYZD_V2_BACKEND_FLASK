@@ -1,4 +1,4 @@
-from test.conftest import jwt_token
+from conftest import jwt_token
 import json
 
 ## 채팅 내역 불러오기 테스트 ##
