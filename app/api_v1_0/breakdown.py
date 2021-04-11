@@ -7,8 +7,6 @@ import json
 @jwt_required()
 @room_member_required
 def breakdown(user, room):
-    chats = []
-    for c in room.chats.order_by(Chat.created_at.desc()).all():
-        chats.append(c.json())
+    chats = room.breakdown(user)
 
     return json.dumps(chats, ensure_ascii=False).encode('utf8'), 200
