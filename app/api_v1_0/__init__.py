@@ -14,6 +14,7 @@ from .room_token import room_token
 from .applicant_list import applicant_list
 from .room_info import room_info
 from .room_refresh import room_refresh
+from .delete_room import delete_room
 
 # chatting api
 api_v1_0.add_url_rule('/chat/list', 'chat_list', chat_list, methods=['GET'])
@@ -23,6 +24,7 @@ api_v1_0.add_url_rule('/room/<int:room_id>/token', 'room_token', room_token, met
 api_v1_0.add_url_rule('/club/<int:club_id>/applicant', 'applicant_list', applicant_list, methods=['GET'])
 api_v1_0.add_url_rule('/room/<int:room_id>/info', 'room_info', room_info, methods=['GET'])
 api_v1_0.add_url_rule('/room/<int:room_id>/refresh', 'room_refresh', room_refresh, methods=['GET'])
+api_v1_0.add_url_rule('/room/<int:room_id>', 'delete_room', delete_room, methods=['DELETE'])
 
 from .report import report
 
