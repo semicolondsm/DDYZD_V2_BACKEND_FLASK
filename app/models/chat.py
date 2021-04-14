@@ -56,12 +56,14 @@ class Room(db.Model):
         db.session.commit()
 
     def breakdown(self, user):
-        chat_ordered_query = self.chats.order_by(Chat.created_at.desc())
+        chat_ordered_query = self.chats.order_by(Chat.created_at.asc())
         if user.is_user(self):
-            cs = chat_ordered_query.offset(self.u_offset)
+            cs = chat_ordered_query.offset(self.u_offset).all()
         else:
-            cs = chat_ordered_query.offset(self.c_offset)
+            cs = chat_ordered_query.offset(self.c_offset).all()
         
+        
+        cs.sort(reverse=True)
         chats = []
         for c in cs:
             chats.append(c.json())
@@ -109,6 +111,9 @@ class Chat(db.Model):
     user_type = db.Column(db.Enum(UserType))
     result = db.Column(db.Boolean(), default=None)
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
+
+    def __lt__(self, operand):  
+        return self.created_at < operand.created_at
 
     def json(self):
         return {
