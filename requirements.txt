@@ -55,7 +55,7 @@ parso==0.8.1
 pexpect==4.8.0
 pickleshare==0.7.5
 pluggy==0.13.1
-prompt-toolkit==3.0.16
+prompt-toolkit==3.0.18
 proto-plus==1.13.0
 protobuf==3.14.0
 ptyprocess==0.7.0
