@@ -46,7 +46,7 @@ Jinja2==2.11.3
 Mako==1.1.4
 MarkupSafe==1.1.1
 msgpack==1.0.2
-mysql-connector-python==8.0.23
+mysql-connector-python==8.0.25
 mysql-connector-python-rf==2.2.2
 mysqlclient==2.0.3
 oauth2client==4.1.3
